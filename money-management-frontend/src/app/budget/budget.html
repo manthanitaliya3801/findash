@@ -1,0 +1,118 @@
+<div class="page-content">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h2 class="mobile-app-title">Budget</h2>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header animate-fade-in">
+        <div class="page-header-content">
+            <h1 class="page-header-title"><i class="fa-solid fa-wallet mr-2 text-primary"></i> Monthly Budget</h1>
+            <p class="page-header-subtitle">Set limits and track your spending per category.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <div class="header-filter-group">
+                <input type="date" [(ngModel)]="startDate" (change)="filterData()" class="header-filter-input"
+                    style="width: auto;">
+                <span class="header-divider"></span>
+                <input type="date" [(ngModel)]="endDate" (change)="filterData()" class="header-filter-input"
+                    style="width: auto;">
+            </div>
+            <button (click)="toggleBudgetForm()" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Set Budget
+            </button>
+        </div>
+    </header>
+
+    <!-- Budget Grid -->
+    <!-- Budget Grid -->
+    <div class="grid-3 gap-4 animate-fade-in" style="animation-delay: 0.1s">
+        <div *ngFor="let budget of budgets" class="card-premium flex-col justify-between" style="min-height: 200px;">
+            <div>
+                <div class="flex-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="icon-wrapper-sm">
+                            <i [class]="getCategoryIcon(budget.category)"></i>
+                        </div>
+                        <span class="category-name text-lg">{{ budget.category }}</span>
+                    </div>
+                    <!-- Status Badge -->
+                    <span class="status-badge"
+                        [ngStyle]="{'background-color': getBudgetStatus(budget.spent, budget.limit) === 'Over Budget' ? '#fee2e2' : (getBudgetStatus(budget.spent, budget.limit) === 'Near Limit' ? '#fef3c7' : '#dcfce7'),
+                                        'color': getBudgetStatus(budget.spent, budget.limit) === 'Over Budget' ? '#dc2626' : (getBudgetStatus(budget.spent, budget.limit) === 'Near Limit' ? '#d97706' : '#16a34a')}">
+                        {{ getBudgetStatus(budget.spent, budget.limit) }}
+                    </span>
+                </div>
+
+                <div class="flex-between mt-4 mb-1 text-sm text-muted">
+                    <span>Spent: <strong class="text-main">{{ budget.spent | appCurrency }}</strong></span>
+                    <span class="font-bold"
+                        [style.color]="getBudgetStatus(budget.spent, budget.limit) === 'Over Budget' ? 'var(--danger-color)' : (getBudgetStatus(budget.spent, budget.limit) === 'Near Limit' ? 'var(--warning-color)' : 'var(--success-color)')">
+                        {{ calculatePercentage(budget.spent, budget.limit) | number:'1.0-0' }}%
+                    </span>
+                    <span>Limit: <strong class="text-main">{{ budget.limit | appCurrency }}</strong></span>
+                </div>
+
+                <div class="progress-bar-container mb-2">
+                    <div class="progress-bar" [style.width.%]="calculatePercentage(budget.spent, budget.limit)"
+                        [style.background-color]="getBudgetStatus(budget.spent, budget.limit) === 'Over Budget' ? 'var(--danger-color)' : (getBudgetStatus(budget.spent, budget.limit) === 'Near Limit' ? 'var(--warning-color)' : 'var(--success-color)')">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-light flex justify-end gap-2">
+                <button (click)="editLimit(budget)" class="btn-icon text-primary hover:bg-blue-50" title="Edit Limit">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
+                <button (click)="deleteBudget(budget._id)" class="btn-icon text-muted hover:text-danger hover:bg-red-50"
+                    title="Remove Budget">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <div *ngIf="budgets.length === 0" class="text-center py-5 text-muted col-span-full">
+            <div class="mb-3 text-4xl text-gray-300"><i class="fa-solid fa-wallet"></i></div>
+            <p>No budgets set. Click "Set Budget" to get started.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="showBudgetForm" (click)="toggleBudgetForm()">
+    <div class="modal-content card-premium" (click)="$event.stopPropagation()">
+        <div class="flex-between mb-4">
+            <h3 class="text-xl font-bold">Set Category Budget</h3>
+            <button (click)="toggleBudgetForm()" class="btn-icon text-muted hover:text-danger"><i
+                    class="fa-solid fa-times"></i></button>
+        </div>
+
+        <form (ngSubmit)="budgetForm.form.valid && saveBudget()" #budgetForm="ngForm">
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-1">Category</label>
+                <select [(ngModel)]="newBudget.categoryId" name="categoryId" class="input-premium" required
+                    #categoryInput="ngModel" [class.border-red-500]="categoryInput.invalid && categoryInput.touched">
+                    <option value="" disabled selected>Select Category</option>
+                    <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                </select>
+                <span *ngIf="categoryInput.invalid && categoryInput.touched" class="text-xs text-danger mt-1 block">
+                    Category is required
+                </span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block text-sm font-medium text-muted mb-1">Monthly Limit</label>
+                <input type="number" [(ngModel)]="newBudget.limit" name="limit" class="input-premium" placeholder="0.00"
+                    required min="0.01" #limitInput="ngModel"
+                    [class.border-red-500]="limitInput.invalid && limitInput.touched">
+                <span *ngIf="limitInput.invalid && limitInput.touched" class="text-xs text-danger mt-1 block">
+                    Limit must be greater than 0
+                </span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full"
+                [disabled]="budgetForm.invalid || !newBudget.limit">Save Budget</button>
+        </form>
+    </div>

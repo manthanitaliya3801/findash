@@ -1,0 +1,185 @@
+<div class="admin-page animate-fade-in">
+
+    <!-- Header -->
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">
+                <i class="fa-solid fa-gear" style="color: var(--admin-accent); margin-right: 0.6rem;"></i>
+                Admin Settings
+            </h1>
+            <p class="admin-subtitle">Manage your admin account preferences and security</p>
+        </div>
+    </div>
+
+    <div class="settings-grid">
+
+        <!-- ── Security Card ──────────────────────── -->
+        <div class="settings-card admin-surface">
+            <div class="card-header">
+                <div class="card-icon icon-security">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div>
+                    <h2 class="card-title">Security</h2>
+                    <p class="card-subtitle">Change your admin password</p>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div class="admin-alert admin-alert-success" *ngIf="passwordSuccess">
+                <span><i class="fa-solid fa-circle-check"></i> {{ passwordSuccess }}</span>
+            </div>
+            <div class="admin-alert admin-alert-error" *ngIf="passwordError">
+                <span><i class="fa-solid fa-triangle-exclamation"></i> {{ passwordError }}</span>
+                <button class="admin-alert-dismiss" (click)="passwordError = ''"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form class="settings-form" (ngSubmit)="changePassword()" #pwForm="ngForm" novalidate>
+                <!-- Current Password -->
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-key input-icon"></i>
+                        <input [type]="showCurrentPass ? 'text' : 'password'" class="form-input"
+                            placeholder="Enter current password" [(ngModel)]="currentPassword" name="currentPassword"
+                            autocomplete="current-password" />
+                        <button type="button" class="eye-btn" (click)="showCurrentPass = !showCurrentPass">
+                            <i class="fa-solid" [class.fa-eye]="!showCurrentPass"
+                                [class.fa-eye-slash]="showCurrentPass"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- New Password -->
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-lock-open input-icon"></i>
+                        <input [type]="showNewPass ? 'text' : 'password'" class="form-input"
+                            placeholder="At least 6 characters" [(ngModel)]="newPassword" name="newPassword"
+                            autocomplete="new-password" />
+                        <button type="button" class="eye-btn" (click)="showNewPass = !showNewPass">
+                            <i class="fa-solid" [class.fa-eye]="!showNewPass" [class.fa-eye-slash]="showNewPass"></i>
+                        </button>
+                    </div>
+                    <!-- Strength indicator -->
+                    <div class="strength-bar" *ngIf="newPassword.length > 0">
+                        <div class="strength-track">
+                            <div class="strength-fill" [style.width.%]="(passwordStrength / 5) * 100"
+                                [style.background]="strengthColor"></div>
+                        </div>
+                        <span class="strength-label" [style.color]="strengthColor">{{ strengthLabel }}</span>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label class="form-label">Confirm New Password</label>
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-shield-halved input-icon"></i>
+                        <input [type]="showConfirmPass ? 'text' : 'password'" class="form-input"
+                            [class.input-mismatch]="confirmPassword && newPassword !== confirmPassword"
+                            placeholder="Repeat new password" [(ngModel)]="confirmPassword" name="confirmPassword"
+                            autocomplete="new-password" />
+                        <button type="button" class="eye-btn" (click)="showConfirmPass = !showConfirmPass">
+                            <i class="fa-solid" [class.fa-eye]="!showConfirmPass"
+                                [class.fa-eye-slash]="showConfirmPass"></i>
+                        </button>
+                    </div>
+                    <span class="mismatch-hint" *ngIf="confirmPassword && newPassword !== confirmPassword">
+                        <i class="fa-solid fa-circle-xmark"></i> Passwords do not match
+                    </span>
+                </div>
+
+                <button type="submit" class="save-btn" [disabled]="passwordLoading">
+                    <i class="fa-solid" [class.fa-key]="!passwordLoading" [class.fa-circle-notch]="passwordLoading"
+                        [class.fa-spin]="passwordLoading"></i>
+                    {{ passwordLoading ? 'Saving…' : 'Change Password' }}
+                </button>
+            </form>
+        </div>
+
+        <!-- ── Appearance Card ─────────────────────── -->
+        <div class="settings-card admin-surface">
+            <div class="card-header">
+                <div class="card-icon icon-appearance">
+                    <i class="fa-solid fa-palette"></i>
+                </div>
+                <div>
+                    <h2 class="card-title">Appearance</h2>
+                    <p class="card-subtitle">Theme and display preferences</p>
+                </div>
+            </div>
+
+            <!-- Dark Mode Toggle -->
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-name">
+                        <i class="fa-solid" [class.fa-moon]="!isDark" [class.fa-sun]="isDark"
+                            style="margin-right: 0.5rem;"></i>
+                        Dark Mode
+                    </div>
+                    <div class="setting-desc">{{ isDark ? 'Dark theme is active' : 'Light theme is active' }}</div>
+                </div>
+                <button class="toggle-switch" [class.toggle-on]="isDark" (click)="toggleDarkMode()" type="button"
+                    [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+                    <div class="toggle-thumb"></div>
+                </button>
+            </div>
+
+            <div class="theme-preview" [class.preview-dark]="isDark">
+                <div class="preview-bar">
+                    <div class="preview-dot"></div>
+                    <div class="preview-dot"></div>
+                    <div class="preview-dot"></div>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-line long"></div>
+                    <div class="preview-line short"></div>
+                </div>
+                <span class="preview-label">{{ isDark ? '🌙 Dark Mode Preview' : '☀️ Light Mode Preview' }}</span>
+            </div>
+        </div>
+
+        <!-- ── Currency Card (Admin Only) ─────────────────── -->
+        <div class="settings-card admin-surface">
+            <div class="card-header">
+                <div class="card-icon icon-currency">
+                    <i class="fa-solid fa-coins"></i>
+                </div>
+                <div>
+                    <h2 class="card-title">Currency</h2>
+                    <p class="card-subtitle">Set your admin display currency</p>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="currency-preview">
+                <div class="currency-symbol-big">{{ adminCurrencyService.getCurrencyConfig().symbol }}</div>
+                <div class="currency-preview-text">
+                    <span class="currency-name">{{ adminCurrencyService.getCurrencyConfig().name }}</span>
+                    <span class="currency-code">{{ adminCurrencyService.getCurrencyConfig().code }}</span>
+                </div>
+            </div>
+
+            <!-- Selector -->
+            <div class="form-group" style="margin-top: 1.25rem;">
+                <label class="form-label">Select Currency</label>
+                <div class="currency-grid">
+                    <button *ngFor="let c of adminCurrencyService.currencies" type="button" class="currency-chip"
+                        [class.chip-active]="selectedCurrency === c.code" (click)="selectedCurrency = c.code">
+                        <span class="chip-symbol">{{ c.symbol }}</span>
+                        <span class="chip-code">{{ c.code }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <button class="save-btn" [class.save-success]="currencySaved" (click)="saveCurrency()">
+                <i class="fa-solid" [class.fa-floppy-disk]="!currencySaved" [class.fa-check]="currencySaved"></i>
+                {{ currencySaved ? 'Saved!' : 'Save Currency' }}
+            </button>
+        </div>
+
+    </div>
+</div>

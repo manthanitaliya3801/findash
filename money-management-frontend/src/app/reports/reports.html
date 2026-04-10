@@ -1,0 +1,65 @@
+<div class="reports-page">
+    <!-- Page Header -->
+    <header class="page-header animate-fade-in">
+        <div class="page-header-content">
+            <h1 class="page-header-title">Financial Reports</h1>
+            <p class="page-header-subtitle">Analyze your income, expenses, and savings trends.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <div class="header-filter-group">
+                <input type="date" [(ngModel)]="startDate" (change)="filterData()" class="header-filter-input"
+                    style="width: auto;">
+                <span class="header-divider"></span>
+                <input type="date" [(ngModel)]="endDate" (change)="filterData()" class="header-filter-input"
+                    style="width: auto;">
+            </div>
+            <button (click)="exportToCSV()" class="btn btn-primary">
+                <i class="fa-solid fa-download"></i> Export CSV
+            </button>
+        </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="reports-stats-grid mb-5 animate-fade-in" style="animation-delay: 0.1s">
+        <div class="report-stat-card income">
+            <h3 class="report-stat-label">Total Income</h3>
+            <p class="report-stat-value">{{ totalIncome | appCurrency }}</p>
+        </div>
+        <div class="report-stat-card expense">
+            <h3 class="report-stat-label">Total Expenses</h3>
+            <p class="report-stat-value">{{ totalExpense | appCurrency }}</p>
+        </div>
+        <div class="report-stat-card savings">
+            <h3 class="report-stat-label">Net Savings</h3>
+            <p class="report-stat-value" [ngClass]="netSavings >= 0 ? 'text-success' : 'text-danger'">{{ netSavings |
+                appCurrency }}</p>
+        </div>
+        <div class="report-stat-card rate">
+            <h3 class="report-stat-label">Savings Rate</h3>
+            <p class="report-stat-value">{{ savingsRate | number:'1.0-1' }}%</p>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid animate-fade-in" style="animation-delay: 0.2s">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3 class="chart-card-title">Income vs Expense</h3>
+            </div>
+            <div class="chart-container">
+                <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="barChartType">
+                </canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3 class="chart-card-title">Expenses by Category</h3>
+            </div>
+            <div class="chart-container">
+                <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType">
+                </canvas>
+            </div>
+        </div>
+    </div>

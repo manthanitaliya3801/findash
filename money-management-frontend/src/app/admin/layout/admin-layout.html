@@ -1,0 +1,95 @@
+<div class="admin-layout-shell" [class.sidebar-open]="sidebarOpen()">
+
+    <!-- ===== Slide-in Sidebar ===== -->
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-header">
+            <div class="logo-area">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span class="logo-text">Admin Panel</span>
+            </div>
+            <!-- Close button (visible on mobile only) -->
+            <button class="close-btn" (click)="closeSidebar()" aria-label="Close sidebar">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <p class="nav-label">Overview</p>
+                <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <p class="nav-label">Management</p>
+                <a routerLink="/admin/users" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Users</span>
+                </a>
+                <a routerLink="/admin/transactions" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Transactions</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <p class="nav-label">Analytics</p>
+                <a routerLink="/admin/reports" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
+                    <i class="fa-solid fa-file-chart-column"></i>
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <p class="nav-label">System</p>
+                <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a routerLink="/dashboard" class="nav-item return-link" (click)="closeSidebar()">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to App</span>
+            </a>
+            <div class="admin-profile">
+                <div class="avatar-sm">{{ adminInitial }}</div>
+                <div class="profile-info">
+                    <span class="name">{{ adminName }}</span>
+                    <span class="role">Administrator</span>
+                </div>
+            </div>
+            <button class="nav-item logout-nav-btn" (click)="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- ===== Backdrop Overlay (mobile) ===== -->
+    <div class="admin-overlay" (click)="closeSidebar()"></div>
+
+    <!-- ===== Main Content Area ===== -->
+    <main class="admin-main">
+
+        <!-- Mobile sticky top bar -->
+        <header class="mobile-header">
+            <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Open sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <span class="mobile-title">Admin Panel</span>
+        </header>
+
+        <div class="content-wrapper">
+            <router-outlet></router-outlet>
+        </div>
+
+    </main>
+
+</div>

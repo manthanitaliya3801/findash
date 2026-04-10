@@ -1,0 +1,186 @@
+<div class="admin-page animate-fade-in">
+
+    <!-- Header -->
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">
+                <i class="fa-solid fa-receipt" style="color: var(--admin-accent); margin-right: 0.6rem;"></i>
+                Transaction Monitor
+            </h1>
+            <p class="admin-subtitle">View, filter and moderate all system-wide transactions</p>
+        </div>
+        <div class="header-meta" *ngIf="!isLoading">
+            <span class="total-badge">{{ totalCount }} total</span>
+        </div>
+    </div>
+
+    <!-- Success Alert -->
+    <div class="admin-alert admin-alert-success" *ngIf="successMessage">
+        <span><i class="fa-solid fa-circle-check"></i> {{ successMessage }}</span>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="admin-alert admin-alert-error" *ngIf="errorMessage">
+        <span><i class="fa-solid fa-triangle-exclamation"></i> {{ errorMessage }}</span>
+        <button class="admin-alert-dismiss" (click)="errorMessage = ''">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-panel admin-surface">
+        <div class="filter-grid">
+            <!-- User Filter -->
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-user"></i> User</label>
+                <select class="filter-input" [(ngModel)]="selectedUserId">
+                    <option value="">All Users</option>
+                    <option *ngFor="let u of users" [value]="u._id">{{ u.name }}</option>
+                </select>
+            </div>
+
+            <!-- Type Filter -->
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-tag"></i> Type</label>
+                <select class="filter-input" [(ngModel)]="selectedType">
+                    <option value="all">All Types</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+            </div>
+
+            <!-- Start Date -->
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-regular fa-calendar"></i> From</label>
+                <input type="date" class="filter-input" [(ngModel)]="startDate" />
+            </div>
+
+            <!-- End Date -->
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-regular fa-calendar"></i> To</label>
+                <input type="date" class="filter-input" [(ngModel)]="endDate" />
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button class="admin-btn btn-primary" (click)="applyFilters()">
+                <i class="fa-solid fa-filter"></i> Apply Filters
+            </button>
+            <button class="admin-btn" (click)="resetFilters()">
+                <i class="fa-solid fa-rotate-left"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="admin-loading admin-surface" *ngIf="isLoading">
+        <div>
+            <div class="admin-spinner"></div>
+            <p>Loading transactions…</p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-surface tx-table-wrapper" *ngIf="!isLoading">
+
+        <!-- Empty State -->
+        <div class="admin-empty" *ngIf="transactions.length === 0">
+            <i class="fa-solid fa-receipt"></i>
+            <p>No transactions found for this filter.</p>
+            <button class="admin-btn" (click)="resetFilters()">Clear Filters</button>
+        </div>
+
+        <table class="tx-table" *ngIf="transactions.length > 0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th class="text-right">Amount</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let tx of transactions" [class.row-income]="tx.type === 'income'"
+                    [class.row-expense]="tx.type === 'expense'">
+                    <td class="col-date">{{ formatDate(tx.date) }}</td>
+                    <td class="col-user">
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ (tx.userName || '?')[0].toUpperCase() }}</div>
+                            <span>{{ tx.userName }}</span>
+                        </div>
+                    </td>
+                    <td class="col-title">{{ tx.title }}</td>
+                    <td class="col-cat">
+                        <span class="cat-tag">{{ tx.category }}</span>
+                    </td>
+                    <td class="col-type">
+                        <span class="type-badge" [class.badge-income]="tx.type === 'income'"
+                            [class.badge-expense]="tx.type === 'expense'">
+                            <i class="fa-solid" [class.fa-arrow-up]="tx.type === 'income'"
+                                [class.fa-arrow-down]="tx.type === 'expense'"></i>
+                            {{ tx.type | titlecase }}
+                        </span>
+                    </td>
+                    <td class="col-amount text-right">
+                        <span [class.amount-income]="tx.type === 'income'"
+                            [class.amount-expense]="tx.type === 'expense'">
+                            {{ tx.type === 'income' ? '+' : '-' }}{{ formatAmount(tx.amount) }}
+                        </span>
+                    </td>
+                    <td class="col-action text-center">
+                        <!-- Confirm Delete Inline -->
+                        <div class="confirm-row" *ngIf="confirmDeleteId === tx._id">
+                            <span class="confirm-text">Delete?</span>
+                            <button class="btn-danger-sm" (click)="deleteTransaction(tx)"
+                                [disabled]="deletingId === tx._id">
+                                <i class="fa-solid fa-check"></i> Yes
+                            </button>
+                            <button class="btn-ghost-sm" (click)="cancelDelete()">
+                                <i class="fa-solid fa-xmark"></i> No
+                            </button>
+                        </div>
+                        <button class="btn-delete" *ngIf="confirmDeleteId !== tx._id" (click)="confirmDelete(tx._id)"
+                            [disabled]="deletingId === tx._id" title="Delete this transaction">
+                            <i class="fa-solid" [class.fa-trash]="deletingId !== tx._id"
+                                [class.fa-circle-notch]="deletingId === tx._id"
+                                [class.fa-spin]="deletingId === tx._id"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination-bar" *ngIf="totalPages > 1">
+            <button class="pg-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">
+                <i class="fa-solid fa-angles-left"></i>
+            </button>
+            <button class="pg-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button *ngFor="let p of pages" class="pg-btn" [class.pg-active]="p === currentPage" (click)="goToPage(p)">
+                {{ p }}
+            </button>
+
+            <button class="pg-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <button class="pg-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
+                <i class="fa-solid fa-angles-right"></i>
+            </button>
+
+            <span class="pg-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        </div>
+    </div>
+
+    <!-- Warning Note -->
+    <div class="admin-note">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Admin can <strong>delete</strong> suspicious entries but cannot edit transaction amounts. Deletions are
+            permanent.</span>
+    </div>
+</div>

@@ -1,0 +1,347 @@
+<div class="dashboard-page">
+  <!-- Mobile Wireframe Header (findash style) -->
+  <header class="mobile-header">
+    <h1 class="mobile-app-title">findash</h1>
+    <div class="mobile-header-actions">
+      <button type="button" class="mobile-header-btn" routerLink="/settings" aria-label="Profile">
+        <i class="fa-solid fa-user"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Top Bar (Desktop) -->
+  <div class="page-top-bar desktop-top-bar">
+    <div class="top-bar-left">
+      <h1 class="welcome-text">Welcome back, {{ userName }}! 👋</h1>
+      <div class="breadcrumb">
+        <span>Home</span>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span class="active">Dashboard</span>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <div class="date-filters">
+        <input type="date" [(ngModel)]="startDate" (change)="filterData()" class="date-input"
+          placeholder="Start Date" />
+        <span class="date-separator">|</span>
+        <input type="date" [(ngModel)]="endDate" (change)="filterData()" class="date-input" placeholder="End Date" />
+        <button (click)="filterData()" class="btn btn-sm btn-primary">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards - 2x2 Grid (wireframe style) -->
+  <!-- Stats Cards - 2x2 Grid (wireframe style) -->
+  <div class="row g-3 mb-4">
+    <!-- Total Balance -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a routerLink="/budget" class="text-decoration-none">
+        <div class="stat-card-horizontal stat-card-primary hover-lift cursor-pointer">
+          <div class="stat-icon">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Balance</span>
+            <h3 class="stat-value" *ngIf="isDataLoaded">{{ budgetLeft | appCurrency }}</h3>
+            <div class="stat-shimmer" *ngIf="!isDataLoaded"></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Total Income -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a routerLink="/income" class="text-decoration-none">
+        <div class="stat-card-horizontal stat-card-success hover-lift cursor-pointer">
+          <div class="stat-icon">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Income</span>
+            <h3 class="stat-value" *ngIf="isDataLoaded">{{ totalIncome | appCurrency }}</h3>
+            <div class="stat-shimmer" *ngIf="!isDataLoaded"></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Total Expense -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a routerLink="/expenses" class="text-decoration-none">
+        <div class="stat-card-horizontal stat-card-warning hover-lift cursor-pointer">
+          <div class="stat-icon">
+            <i class="fa-solid fa-arrow-trend-down"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Expense</span>
+            <h3 class="stat-value" *ngIf="isDataLoaded">{{ totalExpense | appCurrency }}</h3>
+            <div class="stat-shimmer" *ngIf="!isDataLoaded"></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Net Savings -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a routerLink="/savings" class="text-decoration-none">
+        <div class="stat-card-horizontal hover-lift cursor-pointer" [class.stat-card-success]="netSavings >= 0"
+          [class.stat-card-danger]="netSavings < 0">
+          <div class="stat-icon">
+            <i class="fa-solid" [class]="netSavings >= 0 ? 'fa-piggy-bank' : 'fa-triangle-exclamation'"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Net Savings</span>
+            <h3 class="stat-value" *ngIf="isDataLoaded">{{ netSavings | appCurrency }}</h3>
+            <div class="stat-shimmer" *ngIf="!isDataLoaded"></div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Monthly Summary Section -->
+  <div class="monthly-summary-section animate-fade-in mb-5" style="animation-delay: 0.15s">
+    <div class="monthly-summary-card card-premium">
+      <!-- Month Navigator Header -->
+      <div class="monthly-nav-header">
+        <button class="monthly-nav-btn" (click)="prevMonth()" title="Previous Month">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="monthly-nav-label">
+          <i class="fa-solid fa-calendar-days monthly-nav-icon"></i>
+          <span class="monthly-nav-title">{{ selectedMonthLabel }}</span>
+          <span class="monthly-badge">Monthly Overview</span>
+        </div>
+        <button class="monthly-nav-btn" (click)="nextMonth()" title="Next Month">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <!-- Monthly Stats Grid -->
+      <div class="monthly-stats-grid">
+        <!-- Monthly Income -->
+        <div class="monthly-stat-item monthly-stat-income">
+          <div class="monthly-stat-icon">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+          </div>
+          <div class="monthly-stat-body">
+            <span class="monthly-stat-label">Monthly Income</span>
+            <h3 class="monthly-stat-value">{{ monthlyIncome | appCurrency }}</h3>
+          </div>
+          <div class="monthly-stat-pill income-pill">
+            <i class="fa-solid fa-plus"></i> Income
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="monthly-divider"></div>
+
+        <!-- Monthly Expense -->
+        <div class="monthly-stat-item monthly-stat-expense">
+          <div class="monthly-stat-icon">
+            <i class="fa-solid fa-arrow-trend-down"></i>
+          </div>
+          <div class="monthly-stat-body">
+            <span class="monthly-stat-label">Monthly Expense</span>
+            <h3 class="monthly-stat-value">{{ monthlyExpense | appCurrency }}</h3>
+          </div>
+          <div class="monthly-stat-pill expense-pill">
+            <i class="fa-solid fa-minus"></i> Expense
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="monthly-divider"></div>
+
+        <!-- Monthly Net -->
+        <div class="monthly-stat-item" [class.monthly-stat-positive]="monthlyNet >= 0"
+          [class.monthly-stat-negative]="monthlyNet < 0">
+          <div class="monthly-stat-icon">
+            <i class="fa-solid fa-scale-balanced"></i>
+          </div>
+          <div class="monthly-stat-body">
+            <span class="monthly-stat-label">Net Balance</span>
+            <h3 class="monthly-stat-value">{{ monthlyNet | appCurrency }}</h3>
+          </div>
+          <div class="monthly-stat-pill" [class.net-positive-pill]="monthlyNet >= 0"
+            [class.net-negative-pill]="monthlyNet < 0">
+            <i class="fa-solid" [class.fa-check]="monthlyNet >= 0" [class.fa-exclamation]="monthlyNet < 0"></i>
+            {{ monthlyNet >= 0 ? 'Surplus' : 'Deficit' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section - Bar Charts + Pie Chart (wireframe stacked) -->
+  <div class="charts-section grid-2 gap-4 mb-5 animate-fade-in" style="animation-delay: 0.2s">
+    <div class="chart-card card-premium">
+      <div class="flex-between mb-4">
+        <h3 class="text-lg font-bold">Bar Charts</h3>
+        <select [(ngModel)]="selectedTimeRange" (change)="selectTimeRange(selectedTimeRange)"
+          class="input-premium py-1 px-2 text-sm w-auto">
+          <option value="Last 6 Months">Last 6 Months</option>
+          <option value="This Year">This Year</option>
+          <option value="Last Year">Last Year</option>
+          <option value="All Time">All Time</option>
+        </select>
+      </div>
+      <div style="height: 300px">
+        <canvas *ngIf="isBrowser" baseChart [data]="revenueChartData" [options]="revenueChartOptions"
+          [type]="revenueChartType">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="chart-card card-premium">
+      <div class="flex-between mb-4">
+        <h3 class="text-lg font-bold">Pie Chart</h3>
+        <button class="btn-icon text-muted"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+      <div style="height: 300px; display: flex; justify-content: center">
+        <canvas *ngIf="isBrowser" baseChart [data]="expenseDonutData" [options]="expenseDonutOptions"
+          [type]="expenseDonutType">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions (premium table style) -->
+  <div class="tx-section animate-fade-in" style="animation-delay: 0.3s">
+    <div class="tx-header">
+      <div>
+        <h3 class="tx-title"><i class="fa-solid fa-receipt"></i> Recent Transactions</h3>
+        <p class="tx-subtitle">Your latest financial activity</p>
+      </div>
+      <a routerLink="/reports" class="tx-view-all">
+        View All <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- Table -->
+    <div class="tx-table-wrap" *ngIf="recentTransactions.length > 0">
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th class="text-right">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of recentTransactions" [class.tx-row-income]="t.type === 'Income'"
+            [class.tx-row-expense]="t.type !== 'Income'">
+            <td class="tx-col-date">{{ t.date | date: 'MMM d, y' }}</td>
+            <td class="tx-col-desc">
+              <div class="tx-desc-cell">
+                <div class="tx-avatar" [class.avatar-income]="t.type === 'Income'"
+                  [class.avatar-expense]="t.type !== 'Income'">
+                  <i class="fa-solid" [class.fa-arrow-up]="t.type === 'Income'"
+                    [class.fa-arrow-down]="t.type !== 'Income'"></i>
+                </div>
+                <span>{{ t.description || t.category }}</span>
+              </div>
+            </td>
+            <td class="tx-col-cat">
+              <span class="tx-cat-tag">{{ t.category }}</span>
+            </td>
+            <td class="tx-col-type">
+              <span class="tx-type-badge" [class.badge-income]="t.type === 'Income'"
+                [class.badge-expense]="t.type !== 'Income'">
+                {{ t.type }}
+              </span>
+            </td>
+            <td class="tx-col-amount text-right">
+              <span [class.amount-positive]="t.type === 'Income'" [class.amount-negative]="t.type !== 'Income'">
+                {{ t.type === 'Income' ? '+' : '-' }}{{ t.amount | appCurrency }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div class="tx-empty" *ngIf="recentTransactions.length === 0">
+      <div class="tx-empty-icon">
+        <i class="fa-solid fa-receipt"></i>
+      </div>
+      <p>No recent transactions yet.</p>
+      <span>Add income or expenses to see them here.</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Add Transaction Modal -->
+<div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-content card-premium" (click)="$event.stopPropagation()">
+    <div class="flex-between mb-4">
+      <h3 class="text-xl font-bold">Add New Transaction</h3>
+      <button (click)="closeModal()" class="btn-icon text-muted hover:text-danger">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <form (ngSubmit)="quickAddForm.form.valid && submitTransaction()" #quickAddForm="ngForm">
+      <div class="form-group mb-3">
+        <label class="block text-sm font-medium text-muted mb-1">Type</label>
+        <div class="flex gap-2">
+          <button type="button" class="btn flex-1"
+            [ngClass]="newTransaction.type === 'income' ? 'btn-primary' : 'btn-secondary'"
+            (click)="newTransaction.type = 'income'">
+            Income
+          </button>
+          <button type="button" class="btn flex-1"
+            [ngClass]="newTransaction.type === 'expense' ? 'btn-danger' : 'btn-secondary'"
+            (click)="newTransaction.type = 'expense'">
+            Expense
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="block text-sm font-medium text-muted mb-1">Title</label>
+        <input type="text" [(ngModel)]="newTransaction.title" name="title" class="input-premium"
+          placeholder="e.g. Monthly Salary" required #titleInput="ngModel"
+          [class.border-red-500]="titleInput.invalid && titleInput.touched" />
+        <span *ngIf="titleInput.invalid && titleInput.touched" class="text-xs text-danger mt-1 block">Title is
+          required</span>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="block text-sm font-medium text-muted mb-1">Amount</label>
+        <input type="number" [(ngModel)]="newTransaction.amount" name="amount" class="input-premium" placeholder="0.00"
+          required min="0.01" #amountInput="ngModel"
+          [class.border-red-500]="amountInput.invalid && amountInput.touched" />
+        <span *ngIf="amountInput.invalid && amountInput.touched" class="text-xs text-danger mt-1 block">
+          <span *ngIf="amountInput.errors?.['required']">Amount is required</span>
+          <span *ngIf="amountInput.errors?.['min']">Amount must be greater than 0</span>
+        </span>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="block text-sm font-medium text-muted mb-1">Category</label>
+        <select [(ngModel)]="newTransaction.category" name="category" class="input-premium" required>
+          <option value="" disabled>Select Category</option>
+          <option>General</option>
+          <option>Food</option>
+          <option>Rent</option>
+          <option>Salary</option>
+          <option>Shopping</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="block text-sm font-medium text-muted mb-1">Date</label>
+        <input type="date" [(ngModel)]="newTransaction.date" name="date" class="input-premium" required />
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" [disabled]="quickAddForm.invalid || !newTransaction.amount">
+        Save Transaction
+      </button>
+    </form>
+  </div>
+</div>

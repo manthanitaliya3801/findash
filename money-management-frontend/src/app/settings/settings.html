@@ -1,0 +1,97 @@
+<div class="page-content settings-page">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h2 class="mobile-app-title">Settings</h2>
+    </div>
+
+    <!-- Header (Desktop) -->
+    <header class="page-header">
+        <div>
+            <h1>Settings</h1>
+            <p class="page-subtitle">Manage your account and preferences</p>
+        </div>
+        <div class="user-profile">
+            <div class="avatar-circle">{{ userName.charAt(0) }}</div>
+            <span>{{ userName }}</span>
+        </div>
+    </header>
+
+    <div class="settings-container">
+        <section class="card settings-section">
+            <h3>Profile Settings</h3>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" [(ngModel)]="userName" class="form-control" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" [(ngModel)]="userEmail" class="form-control" placeholder="Enter your email">
+            </div>
+        </section>
+
+        <section class="card settings-section">
+            <h3>Preferences</h3>
+            <div class="form-group">
+                <label>Currency</label>
+                <select [(ngModel)]="currency" class="form-control">
+                    <option value="USD">USD ($ United States Dollar)</option>
+                    <option value="EUR">EUR (€ Euro)</option>
+                    <option value="GBP">GBP (£ British Pound)</option>
+                    <option value="INR">INR (₹ Indian Rupee)</option>
+                    <option value="JPY">JPY (¥ Japanese Yen)</option>
+                </select>
+                <small class="form-hint">
+                    * Note: Changing currency does not convert existing amounts.
+                </small>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-left">
+                    <label>Email Notifications</label>
+                    <small>Receive updates about your finances</small>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="notifications">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-left">
+                    <label>Dark Mode</label>
+                    <small>Toggle dark mode theme</small>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="darkMode">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </section>
+
+        <section class="card settings-section">
+            <h3>Categories</h3>
+            <p class="section-desc">Manage your income and expense categories</p>
+            <div class="actions-row">
+                <button class="btn btn-outline" (click)="openCategoryManager('income')">
+                    Manage Income Categories
+                </button>
+                <button class="btn btn-outline" (click)="openCategoryManager('expense')">
+                    Manage Expense Categories
+                </button>
+            </div>
+        </section>
+
+        <div class="actions">
+            <button class="btn btn-secondary" (click)="cancelChanges()">Cancel</button>
+            <button class="btn btn-primary" (click)="saveSettings()">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Category Manager Modal Overlay -->
+    <div class="modal-overlay" *ngIf="showCategoryManager" (click)="closeCategoryManager()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <app-category-manager [type]="activeCategoryType" (close)="closeCategoryManager()">
+            </app-category-manager>
+        </div>
+    </div>
+</div>

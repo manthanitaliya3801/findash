@@ -1,0 +1,278 @@
+<!-- Page Content -->
+<div class="page-content">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h2 class="mobile-app-title">Expenses</h2>
+        <div class="mobile-header-actions">
+            <button (click)="openModal()" class="btn-icon text-main">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Page Header (Desktop) -->
+    <header class="page-header animate-fade-in">
+        <div class="page-header-content">
+            <h1 class="page-header-title">Expenses</h1>
+            <p class="page-header-subtitle">Manage your spending and track outflows.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <button (click)="openModal()" class="btn btn-danger">
+                <i class="fa-solid fa-plus"></i> Add Expense
+            </button>
+        </div>
+    </header>
+
+    <!-- Stats & Chart Row -->
+    <!-- Stats Cards Area -->
+    <div class="row g-4 mb-8 animate-fade-in" style="animation-delay: 0.1s">
+        <!-- Total Expenses Card -->
+        <div class="col-12 col-lg-6">
+            <div class="card-premium card-expense balance-card relative overflow-hidden"
+                style="background: linear-gradient(145deg, #d97706 0%, #f59e0b 100%);">
+                <div class="absolute -right-10 -top-10 opacity-20">
+                    <i class="fa-solid fa-file-invoice-dollar text-9xl text-white"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex-between mb-4">
+                        <span class="text-white/90 font-medium text-sm">Total Expenses</span>
+                        <div class="btn-icon bg-white/20 text-white backdrop-blur-sm">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-2">{{ totalExpenses | appCurrency }}</h2>
+                    <div class="flex items-center gap-2 text-white/80 text-sm">
+                        <span class="bg-white/20 px-2 py-0.5 rounded text-white font-medium text-xs">Tracked</span>
+                        <span>Total Spending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Count -->
+        <div class="col-12 col-lg-6">
+            <div class="card-premium flex-col justify-center">
+                <div class="flex-between mb-2">
+                    <span class="text-muted font-medium">Transactions</span>
+                    <div class="btn-icon bg-blue-50 text-blue-500">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold text-main">{{ expenses.length }}</h2>
+                <p class="text-xs text-muted mt-1">Total entries</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Expense Summary -->
+    <div class="monthly-summary-section animate-fade-in mb-8" style="animation-delay: 0.15s">
+        <div class="monthly-summary-card card-premium">
+            <div class="monthly-nav-header">
+                <button class="monthly-nav-btn" (click)="prevMonth()" title="Previous Month">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <div class="monthly-nav-label">
+                    <i class="fa-solid fa-calendar-days monthly-nav-icon"></i>
+                    <span class="monthly-nav-title">{{ selectedMonthLabel }}</span>
+                    <span class="monthly-badge" style="background: rgba(239,68,68,0.12); color: #dc2626;">Monthly
+                        Expenses</span>
+                </div>
+                <button class="monthly-nav-btn" (click)="nextMonth()" title="Next Month">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="monthly-stats-grid monthly-stats-two">
+                <div class="monthly-stat-item monthly-stat-expense">
+                    <div class="monthly-stat-icon" style="background: rgba(239,68,68,0.12); color: #ef4444;">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                    <div class="monthly-stat-body">
+                        <span class="monthly-stat-label">Expenses This Month</span>
+                        <h3 class="monthly-stat-value">{{ monthlyExpense | appCurrency }}</h3>
+                    </div>
+                    <div class="monthly-stat-pill expense-pill">
+                        <i class="fa-solid fa-arrow-trend-down"></i> Spent
+                    </div>
+                </div>
+                <div class="monthly-divider"></div>
+                <div class="monthly-stat-item">
+                    <div class="monthly-stat-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div class="monthly-stat-body">
+                        <span class="monthly-stat-label">Entries This Month</span>
+                        <h3 class="monthly-stat-value">{{ monthlyCount }}</h3>
+                    </div>
+                    <div class="monthly-stat-pill" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
+                        <i class="fa-solid fa-hashtag"></i> Records
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section mb-8 animate-fade-in" style="animation-delay: 0.2s">
+        <div class="row g-4">
+            <!-- Breakdown Chart -->
+            <div class="col-12 col-md-6">
+                <div class="card-premium h-100">
+                    <div class="flex-between mb-4">
+                        <h3 class="font-bold text-lg">Expense Breakdown</h3>
+                        <button class="btn-icon text-muted"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+                    <div style="height: 300px; display: flex; justify-content: center; align-items: center;">
+                        <canvas *ngIf="isBrowser" baseChart [data]="expensePieData" [options]="expensePieOptions"
+                            [type]="expensePieType"></canvas>
+                        <div *ngIf="!isBrowser" class="loading-placeholder">Loading Chart...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="col-12 col-md-6">
+                <div class="card-premium h-100">
+                    <div class="flex-between mb-4">
+                        <h3 class="font-bold text-lg">Spending Trend</h3>
+                        <div class="badge-soft-danger text-xs font-semibold px-2 py-1 rounded">High Activity</div>
+                    </div>
+                    <div style="height: 300px; display: flex; justify-content: center; align-items: center;">
+                        <canvas *ngIf="isBrowser" baseChart [data]="expenseTrendData" [options]="expenseTrendOptions"
+                            [type]="expenseTrendType"></canvas>
+                        <div *ngIf="!isBrowser" class="loading-placeholder">Loading Chart...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters & List -->
+    <div class="tx-section animate-fade-in" style="animation-delay: 0.2s">
+        <div class="tx-header">
+            <div>
+                <h3 class="tx-title"><i class="fa-solid fa-arrow-trend-down"></i> Expense Records</h3>
+                <p class="tx-subtitle">{{ expenses.length }} total entries</p>
+            </div>
+            <div class="flex-center gap-2">
+                <div class="search-box relative">
+                    <i class="fa-solid fa-search absolute text-muted"
+                        style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.75rem;"></i>
+                    <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Search..."
+                        class="input-premium"
+                        style="padding-left: 30px; width: 160px; height: 36px; font-size: 0.82rem;">
+                </div>
+                <select [(ngModel)]="sortOption" (change)="applyFilters()" class="input-premium"
+                    style="width: auto; height: 36px; font-size: 0.82rem;">
+                    <option value="dateDesc">Newest</option>
+                    <option value="dateAsc">Oldest</option>
+                    <option value="amountDesc">High → Low</option>
+                    <option value="amountAsc">Low → High</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="tx-table-wrap" *ngIf="expenses.length > 0">
+            <table class="tx-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th class="text-right">Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of expenses" class="tx-row-expense">
+                        <td class="tx-col-date">{{ item.date | date:'MMM d, y' }}</td>
+                        <td class="tx-col-desc">
+                            <div class="tx-desc-cell">
+                                <div class="tx-avatar avatar-expense">
+                                    <span class="font-bold">{{ item.title.charAt(0).toUpperCase() }}</span>
+                                </div>
+                                <span>{{ item.title }}</span>
+                            </div>
+                        </td>
+                        <td class="tx-col-cat"><span class="tx-cat-tag">{{ item.category }}</span></td>
+                        <td class="tx-col-amount text-right">
+                            <span class="amount-negative">-{{ item.amount | appCurrency }}</span>
+                        </td>
+                        <td class="tx-col-actions">
+                            <div class="tx-action-btns">
+                                <button (click)="openEditModal(item)" class="btn-icon tx-btn-edit" title="Edit">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button>
+                                <button (click)="deleteExpense(item._id)" class="btn-icon tx-btn-delete" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tx-empty" *ngIf="expenses.length === 0">
+            <div class="tx-empty-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+            <p>No expense records found.</p>
+            <span>Add your first expense to get started.</span>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()">
+    <div class="modal-content card-premium" (click)="$event.stopPropagation()">
+        <div class="flex-between mb-4">
+            <h3 class="text-xl font-bold">{{ editMode ? 'Edit Expense' : 'Add New Expense' }}</h3>
+            <button (click)="closeModal()" class="btn-icon text-muted hover:text-danger"><i
+                    class="fa-solid fa-times"></i></button>
+        </div>
+
+        <form (ngSubmit)="expenseForm.form.valid && submitExpense()" #expenseForm="ngForm">
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-1">Title</label>
+                <input type="text" [(ngModel)]="newExpense.title" name="title" class="input-premium"
+                    placeholder="e.g. Groceries" required #titleInput="ngModel"
+                    [class.border-red-500]="titleInput.invalid && titleInput.touched">
+                <span *ngIf="titleInput.invalid && titleInput.touched" class="text-xs text-danger mt-1 block">Title is
+                    required</span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-1">Amount</label>
+                <input type="number" [(ngModel)]="newExpense.amount" name="amount" class="input-premium"
+                    placeholder="0.00" required min="0.01" #amountInput="ngModel"
+                    [class.border-red-500]="amountInput.invalid && amountInput.touched">
+                <span *ngIf="amountInput.invalid && amountInput.touched" class="text-xs text-danger mt-1 block">
+                    <span *ngIf="amountInput.errors?.['required']">Amount is required</span>
+                    <span *ngIf="amountInput.errors?.['min']">Amount must be greater than 0</span>
+                </span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-1">Date</label>
+                <input type="date" [(ngModel)]="newExpense.date" name="date" class="input-premium" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-1">Category</label>
+                <select [(ngModel)]="newExpense.category" name="category" class="input-premium" required>
+                    <option value="" disabled>Select Category</option>
+                    <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.name }}</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block text-sm font-medium text-muted mb-1">Description (Optional)</label>
+                <textarea [(ngModel)]="newExpense.description" name="description" class="input-premium"
+                    rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-full" [disabled]="expenseForm.invalid || !newExpense.amount">
+                {{ editMode ? 'Update Expense' : 'Save Expense' }}
+            </button>
+        </form>
+    </div>

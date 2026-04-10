@@ -1,0 +1,43 @@
+<div class="notification-bell-wrapper">
+  <!-- Bell Icon -->
+  <button class="bell-btn" (click)="toggle()" [class.has-unread]="unreadCount > 0" id="notification-bell-btn">
+    <i class="fa-solid fa-bell"></i>
+    <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+  </button>
+
+  <!-- Dropdown Panel -->
+  <div class="notif-panel" *ngIf="isOpen" [@fadeIn]>
+    <div class="notif-header">
+      <h4><i class="fa-solid fa-bell me-2"></i>Notifications</h4>
+      <button class="dismiss-all-btn" *ngIf="activeNotifications.length > 0" (click)="dismissAll()">
+        Clear all
+      </button>
+    </div>
+
+    <div class="notif-list" *ngIf="activeNotifications.length > 0; else noNotif">
+      <div
+        class="notif-item"
+        *ngFor="let n of activeNotifications"
+        [class]="getTypeClass(n.type)"
+      >
+        <div class="notif-icon">
+          <i [class]="n.icon"></i>
+        </div>
+        <div class="notif-content">
+          <p class="notif-title">{{ n.title }}</p>
+          <p class="notif-msg">{{ n.message }}</p>
+        </div>
+        <button class="notif-dismiss" (click)="dismiss(n.id)" title="Dismiss">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <ng-template #noNotif>
+      <div class="notif-empty">
+        <i class="fa-regular fa-bell-slash"></i>
+        <p>All caught up! No alerts right now.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

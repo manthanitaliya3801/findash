@@ -1,0 +1,124 @@
+<div class="admin-page admin-users animate-fade-in">
+    <header class="admin-header">
+        <div>
+            <h1 class="admin-title">User Management</h1>
+            <p class="admin-subtitle">Review, monitor, and moderate platform users</p>
+        </div>
+        <button type="button" (click)="fetchUsers(true)" class="admin-btn admin-btn-icon" title="Refresh users">
+            <i class="fa-solid fa-arrows-rotate" [class.fa-spin]="isLoading"></i>
+            <span>Refresh</span>
+        </button>
+    </header>
+
+    <div *ngIf="errorMessage" class="admin-alert admin-alert-error" role="alert">
+        <div>
+            <strong>Unable to load users.</strong>
+            <p>{{ errorMessage }}</p>
+        </div>
+        <button type="button" class="admin-alert-dismiss" (click)="errorMessage = ''" aria-label="Dismiss error">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <section class="admin-surface users-surface">
+        <div *ngIf="isLoading" class="users-table-wrap">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Joined Date</th>
+                        <th class="align-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let i of [1,2,3,4,5]" class="skeleton-row">
+                        <td>
+                            <div class="user-cell">
+                                <div class="skeleton-avatar shimmer"></div>
+                                <div class="skeleton-text shimmer" style="width:120px"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="skeleton-text shimmer" style="width:180px"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-badge shimmer"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-text shimmer" style="width:100px"></div>
+                        </td>
+                        <td class="align-right">
+                            <div class="skeleton-btn shimmer"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div *ngIf="!isLoading && users.length === 0 && !errorMessage" class="admin-empty">
+            <i class="fa-solid fa-users"></i>
+            <p>No users found.</p>
+        </div>
+
+        <div *ngIf="!isLoading && users.length > 0" class="users-table-wrap">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Joined Date</th>
+                        <th class="align-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users">
+                        <td data-label="User">
+                            <div class="user-cell">
+                                <div class="avatar">
+                                    {{ user.name ? user.name.charAt(0).toUpperCase() : 'U' }}
+                                </div>
+                                <span class="user-name">{{ user.name || 'Unknown' }}</span>
+                            </div>
+                        </td>
+                        <td data-label="Email">
+                            <span class="user-email">{{ user.email }}</span>
+                        </td>
+                        <td data-label="Role">
+                            <span class="role-badge" [ngClass]="user.role === 'admin' ? 'role-admin' : 'role-user'">
+                                {{ user.role | titlecase }}
+                            </span>
+                        </td>
+                        <td data-label="Joined Date">
+                            <span class="joined-date">{{ user.createdAt | date:'mediumDate' }}</span>
+                        </td>
+                        <td data-label="Actions" class="align-right">
+                            <button *ngIf="user.role !== 'admin'" type="button" (click)="deleteUser(user._id)"
+                                class="delete-btn" title="Delete user">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Delete</span>
+                            </button>
+                            <span *ngIf="user.role === 'admin'" class="protected-label">Protected</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-controls" *ngIf="!isLoading && !errorMessage && totalUsers > 0">
+            <div class="page-info">
+                Showing page <strong>{{currentPage}}</strong> of <strong>{{totalPages}}</strong> ({{totalUsers}} users)
+            </div>
+            <div class="page-actions">
+                <button class="admin-btn-sm" (click)="prevPage()" [disabled]="currentPage === 1">
+                    <i class="fa-solid fa-chevron-left"></i> Previous
+                </button>
+                <button class="admin-btn-sm" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+</div>

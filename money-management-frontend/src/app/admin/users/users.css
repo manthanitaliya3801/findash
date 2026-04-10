@@ -1,0 +1,425 @@
+@import '../admin-theme.css';
+
+.users-surface {
+    overflow: hidden;
+}
+
+.admin-btn-icon {
+    min-width: 108px;
+    justify-content: center;
+}
+
+.admin-alert p {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+}
+
+.users-table-wrap {
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+.users-table thead th {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--admin-muted);
+    font-weight: 700;
+    background: #f8fafc;
+    padding: 0.9rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.users-table tbody td {
+    padding: 0.95rem 1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    vertical-align: middle;
+}
+
+.users-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.users-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.user-name {
+    font-weight: 700;
+    color: var(--admin-text);
+}
+
+.user-email,
+.joined-date {
+    color: var(--admin-muted);
+    font-size: 0.92rem;
+}
+
+.role-badge {
+    border: 1px solid;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+}
+
+.role-admin {
+    background: #ccfbf1;
+    border-color: #5eead4;
+    color: #0f766e;
+}
+
+.role-user {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.delete-btn {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.45rem 0.68rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.delete-btn:hover {
+    transform: translateY(-1px);
+    border-color: #ef4444;
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.16);
+}
+
+.protected-label {
+    color: var(--admin-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.users-footer {
+    padding: 0.8rem 1rem;
+    text-align: right;
+    font-size: 0.82rem;
+    color: var(--admin-muted);
+    border-top: 1px solid var(--admin-border);
+    background: #f8fafc;
+}
+
+:host-context(.dark-mode) .users-table thead th,
+:host-context(.dark) .users-table thead th,
+:host-context(.dark-mode) .users-footer,
+:host-context(.dark) .users-footer {
+    background: rgba(15, 23, 42, 0.55);
+}
+
+:host-context(.dark-mode) .users-table tbody tr:hover,
+:host-context(.dark) .users-table tbody tr:hover {
+    background: rgba(15, 23, 42, 0.46);
+}
+
+:host-context(.dark-mode) .role-admin,
+:host-context(.dark) .role-admin {
+    background: rgba(20, 184, 166, 0.16);
+    border-color: rgba(45, 212, 191, 0.4);
+    color: #99f6e4;
+}
+
+:host-context(.dark-mode) .role-user,
+:host-context(.dark) .role-user {
+    background: rgba(100, 116, 139, 0.24);
+    border-color: rgba(148, 163, 184, 0.38);
+    color: #cbd5e1;
+}
+
+:host-context(.dark-mode) .delete-btn,
+:host-context(.dark) .delete-btn {
+    background: rgba(127, 29, 29, 0.26);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: #fca5a5;
+}
+
+@media (max-width: 940px) {
+
+    /* Hide the regular table header */
+    .users-table-wrap {
+        overflow-x: unset;
+    }
+
+    .users-table {
+        min-width: 100%;
+        border-spacing: 0;
+    }
+
+    .users-table thead {
+        display: none;
+    }
+
+    /* Make tbody / tr / td stack as cards */
+    .users-table tbody,
+    .users-table tr,
+    .users-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .users-table tbody tr {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: 16px;
+        margin: 0 0.75rem 0.75rem;
+        width: calc(100% - 1.5rem);
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+        transition: box-shadow 0.2s;
+    }
+
+    .users-table tbody tr:hover {
+        background: var(--admin-surface);
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.1);
+    }
+
+    .users-table tbody td {
+        border-bottom: none;
+        padding: 0.3rem 0;
+    }
+
+    /* Show data-label as a small chip above each value */
+    .users-table tbody td::before {
+        content: attr(data-label);
+        display: inline-block;
+        font-size: 0.66rem;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--admin-muted);
+        font-weight: 700;
+        background: rgba(148, 163, 184, 0.12);
+        border-radius: 4px;
+        padding: 0.1rem 0.45rem;
+        margin-bottom: 0.25rem;
+        margin-right: 0.4rem;
+    }
+
+    /* User cell — keep avatar + name on same row */
+    .user-cell {
+        flex-wrap: nowrap;
+    }
+
+    /* Actions td: hide label before, full-width button */
+    .users-table td[data-label="Actions"]::before {
+        display: none;
+    }
+
+    .align-right {
+        text-align: left;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px dashed var(--admin-border);
+    }
+
+    .delete-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.6rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+    }
+
+    .protected-label {
+        display: block;
+        text-align: center;
+        padding: 0.5rem 0;
+    }
+
+    .users-footer {
+        text-align: left;
+    }
+
+    /* Skeleton rows also become card-like */
+    .skeleton-row {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: 16px;
+        margin: 0 0.75rem 0.75rem;
+        width: calc(100% - 1.5rem);
+        padding: 1rem;
+    }
+
+    .skeleton-row td::before {
+        display: none;
+    }
+}
+
+/* Pagination */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1rem;
+    border-top: 1px solid var(--admin-border);
+    background: #ffffff;
+}
+
+.page-info {
+    font-size: 0.9rem;
+    color: var(--admin-muted);
+}
+
+.page-info strong {
+    color: var(--admin-text);
+    font-weight: 700;
+}
+
+.page-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.admin-btn-sm {
+    border: 1px solid var(--admin-border);
+    background: #ffffff;
+    color: var(--admin-text);
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+.admin-btn-sm:hover:not(:disabled) {
+    border-color: var(--admin-accent);
+    color: var(--admin-accent);
+    background: var(--admin-accent-soft);
+}
+
+.admin-btn-sm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f1f5f9;
+}
+
+:host-context(.dark) .pagination-controls,
+:host-context(.dark-mode) .pagination-controls {
+    background: transparent;
+}
+
+:host-context(.dark) .admin-btn-sm,
+:host-context(.dark-mode) .admin-btn-sm {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--admin-text);
+}
+
+:host-context(.dark) .admin-btn-sm:disabled,
+:host-context(.dark-mode) .admin-btn-sm:disabled {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+@media (max-width: 600px) {
+    .pagination-controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .page-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* ===========================
+   Skeleton / Shimmer Loaders
+   =========================== */
+@keyframes shimmer {
+    0% {
+        background-position: -400px 0;
+    }
+
+    100% {
+        background-position: 400px 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+    border-radius: 6px;
+}
+
+.skeleton-row {
+    pointer-events: none;
+}
+
+.skeleton-avatar {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.skeleton-text {
+    height: 0.85rem;
+    border-radius: 4px;
+}
+
+.skeleton-badge {
+    width: 60px;
+    height: 1.5rem;
+    border-radius: 999px;
+}
+
+.skeleton-btn {
+    width: 70px;
+    height: 1.8rem;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+:host-context(.dark-mode) .shimmer,
+:host-context(.dark) .shimmer {
+    background: linear-gradient(90deg, rgba(51, 65, 85, 0.5) 25%, rgba(71, 85, 105, 0.5) 50%, rgba(51, 65, 85, 0.5) 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+}

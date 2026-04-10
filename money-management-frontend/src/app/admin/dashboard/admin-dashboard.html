@@ -1,0 +1,266 @@
+<div class="admin-page admin-dashboard animate-fade-in">
+    <header class="admin-header">
+        <div>
+            <h1 class="admin-title">Dashboard Overview</h1>
+            <p class="admin-subtitle">Live system summary for administrators</p>
+        </div>
+        <button class="admin-btn" (click)="fetchStats(true)" [disabled]="isRefreshing || isLoading" title="Refresh">
+            <i class="fa-solid fa-arrows-rotate" [class.fa-spin]="isRefreshing"></i>
+            <span>Refresh Stats</span>
+        </button>
+    </header>
+
+    <div *ngIf="isRefreshing && !isLoading" class="refresh-state">
+        <i class="fa-solid fa-wave-square"></i>
+        <span>Updating latest metrics...</span>
+    </div>
+
+    <!-- Skeleton Loading State -->
+    <section *ngIf="isLoading" class="stats-grid">
+        <article class="metric-card skeleton-card" *ngFor="let i of [1,2,3,4,5]">
+            <div class="skeleton-icon shimmer"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-line skeleton-label shimmer"></div>
+                <div class="skeleton-line skeleton-value shimmer"></div>
+                <div class="skeleton-line skeleton-trend shimmer"></div>
+            </div>
+        </article>
+    </section>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="admin-alert admin-alert-error" role="alert">
+        <div>
+            <strong>Failed to load stats.</strong>
+            <p>{{ errorMessage }}</p>
+        </div>
+        <button type="button" class="admin-btn retry-btn" (click)="fetchStats(true)">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Retry</span>
+        </button>
+    </div>
+
+    <!-- ===================== METRIC CARDS ===================== -->
+    <section *ngIf="!isLoading && !errorMessage" class="stats-grid">
+        <article class="metric-card users-card">
+            <div class="metric-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="metric-content">
+                <p class="metric-label">Total Users</p>
+                <p class="metric-value">{{ stats.totalUsers | number }}</p>
+                <p class="metric-trend">Active Accounts</p>
+            </div>
+        </article>
+
+        <article class="metric-card volume-card">
+            <div class="metric-icon">
+                <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+            <div class="metric-content">
+                <p class="metric-label">Total Volume</p>
+                <p class="metric-value">{{ formatCurrency(totalVolume) }}</p>
+                <p class="metric-trend">In and Out Flow</p>
+            </div>
+        </article>
+
+        <article class="metric-card income-card">
+            <div class="metric-icon">
+                <i class="fa-solid fa-arrow-down"></i>
+            </div>
+            <div class="metric-content">
+                <p class="metric-label">Total Income</p>
+                <p class="metric-value">{{ formatCurrency(stats.totalIncomeAmount) }}</p>
+                <p class="metric-trend">Across all user records</p>
+            </div>
+        </article>
+
+        <article class="metric-card expense-card">
+            <div class="metric-icon">
+                <i class="fa-solid fa-arrow-up"></i>
+            </div>
+            <div class="metric-content">
+                <p class="metric-label">Total Expenses</p>
+                <p class="metric-value">{{ formatCurrency(stats.totalExpenseAmount) }}</p>
+                <p class="metric-trend">Across all user records</p>
+            </div>
+        </article>
+
+        <article class="metric-card transaction-card">
+            <div class="metric-icon">
+                <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <div class="metric-content">
+                <p class="metric-label">Total Transactions</p>
+                <p class="metric-value">{{ stats.totalTransactions | number }}</p>
+                <p class="metric-trend">Income + expense entries</p>
+            </div>
+        </article>
+    </section>
+
+    <!-- ===================== DASHBOARD GRID ===================== -->
+    <div *ngIf="!isLoading && !errorMessage" class="dashboard-grid">
+
+        <!-- ===== FINANCIAL OVERVIEW ===== -->
+        <div class="dash-card financial-overview">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-pie"></i> Financial Overview</h3>
+            </div>
+            <div class="card-body">
+                <!-- Income vs Expense Bar -->
+                <div class="finance-bar-wrapper">
+                    <div class="finance-bar">
+                        <div class="finance-bar-fill income-fill" [style.width.%]="incomePercent"></div>
+                        <div class="finance-bar-fill expense-fill" [style.width.%]="expensePercent"></div>
+                    </div>
+                    <div class="finance-bar-labels">
+                        <span class="income-label"><i class="fa-solid fa-circle"></i> Income {{ incomePercent |
+                            number:'1.0-0' }}%</span>
+                        <span class="expense-label"><i class="fa-solid fa-circle"></i> Expense {{ expensePercent |
+                            number:'1.0-0' }}%</span>
+                    </div>
+                </div>
+
+                <div class="finance-summary-row">
+                    <div class="finance-stat">
+                        <span class="finance-stat-label">Total Income</span>
+                        <span class="finance-stat-value income-color">{{ formatCurrency(stats.totalIncomeAmount)
+                            }}</span>
+                    </div>
+                    <div class="finance-stat">
+                        <span class="finance-stat-label">Total Expenses</span>
+                        <span class="finance-stat-value expense-color">{{ formatCurrency(stats.totalExpenseAmount)
+                            }}</span>
+                    </div>
+                    <div class="finance-stat">
+                        <span class="finance-stat-label">Net Profit</span>
+                        <span class="finance-stat-value" [class.income-color]="netProfit >= 0"
+                            [class.expense-color]="netProfit < 0">
+                            {{ formatCurrency(netProfit) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MONTHLY TREND ===== -->
+        <div class="dash-card monthly-trend">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-bar"></i> Monthly Trend</h3>
+                <span class="card-badge">Last 6 months</span>
+            </div>
+            <div class="card-body">
+                <div class="trend-chart" *ngIf="monthlyTrend.length > 0">
+                    <div class="trend-bar-group" *ngFor="let month of monthlyTrend">
+                        <div class="trend-bars">
+                            <div class="trend-bar income-bar" [style.height]="getBarHeight(month.income)"
+                                [title]="'Income: ' + formatCurrency(month.income)"></div>
+                            <div class="trend-bar expense-bar" [style.height]="getBarHeight(month.expense)"
+                                [title]="'Expense: ' + formatCurrency(month.expense)"></div>
+                        </div>
+                        <span class="trend-label">{{ month.label }}</span>
+                    </div>
+                </div>
+                <div *ngIf="monthlyTrend.length === 0" class="empty-state-small">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <p>No data in the last 6 months</p>
+                </div>
+                <div class="trend-legend">
+                    <span class="legend-item"><span class="legend-dot income-dot"></span> Income</span>
+                    <span class="legend-item"><span class="legend-dot expense-dot"></span> Expense</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RECENT USERS ===== -->
+        <div class="dash-card recent-users">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-user-plus"></i> Recent Users</h3>
+                <span class="card-badge">Latest signups</span>
+            </div>
+            <div class="card-body">
+                <div class="user-list" *ngIf="recentUsers.length > 0">
+                    <div class="user-row" *ngFor="let user of recentUsers">
+                        <div class="user-avatar">{{ getInitials(user.name) }}</div>
+                        <div class="user-details">
+                            <span class="user-name">{{ user.name }}</span>
+                            <span class="user-email">{{ user.email }}</span>
+                        </div>
+                        <div class="user-meta">
+                            <span class="user-role-badge" [class.admin-role]="user.role === 'admin'">
+                                {{ user.role || 'user' }}
+                            </span>
+                            <span class="user-joined">{{ getTimeAgo(user.createdAt) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="recentUsers.length === 0" class="empty-state-small">
+                    <i class="fa-solid fa-users-slash"></i>
+                    <p>No users yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TOP EXPENSE CATEGORIES ===== -->
+        <div class="dash-card top-categories">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-tags"></i> Top Expense Categories</h3>
+            </div>
+            <div class="card-body">
+                <div class="category-list" *ngIf="topCategories.length > 0">
+                    <div class="category-row" *ngFor="let cat of topCategories; let i = index">
+                        <div class="category-rank">#{{ i + 1 }}</div>
+                        <div class="category-info">
+                            <div class="category-name-row">
+                                <span class="category-name">{{ cat.category }}</span>
+                                <span class="category-amount">{{ formatCurrency(cat.amount) }}</span>
+                            </div>
+                            <div class="category-bar-bg">
+                                <div class="category-bar-fill" [style.width.%]="getCategoryPercent(cat.amount)"></div>
+                            </div>
+                            <span class="category-meta">{{ cat.count }} transactions · {{ getCategoryPercent(cat.amount)
+                                | number:'1.0-0' }}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="topCategories.length === 0" class="empty-state-small">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <p>No expenses recorded yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RECENT TRANSACTIONS ===== -->
+        <div class="dash-card recent-transactions">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Transactions</h3>
+                <span class="card-badge">All users</span>
+            </div>
+            <div class="card-body">
+                <div class="txn-list" *ngIf="recentTransactions.length > 0">
+                    <div class="txn-row" *ngFor="let txn of recentTransactions">
+                        <div class="txn-icon" [class.txn-income]="txn.type === 'income'"
+                            [class.txn-expense]="txn.type === 'expense'">
+                            <i class="fa-solid" [class.fa-arrow-down]="txn.type === 'income'"
+                                [class.fa-arrow-up]="txn.type === 'expense'"></i>
+                        </div>
+                        <div class="txn-details">
+                            <span class="txn-title">{{ txn.title }}</span>
+                            <span class="txn-meta">{{ txn.userName }} · {{ txn.category }}</span>
+                        </div>
+                        <div class="txn-right">
+                            <span class="txn-amount" [class.income-color]="txn.type === 'income'"
+                                [class.expense-color]="txn.type === 'expense'">
+                                {{ txn.type === 'income' ? '+' : '-' }}{{ formatCurrency(txn.amount) }}
+                            </span>
+                            <span class="txn-date">{{ formatDate(txn.date) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="recentTransactions.length === 0" class="empty-state-small">
+                    <i class="fa-solid fa-receipt"></i>
+                    <p>No transactions yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

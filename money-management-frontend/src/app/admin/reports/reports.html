@@ -1,0 +1,288 @@
+<div class="admin-page admin-reports animate-fade-in">
+    <header class="admin-header">
+        <div>
+            <h1 class="admin-title">System Reports</h1>
+            <p class="admin-subtitle">In-depth analytics and financial intelligence</p>
+        </div>
+        <button class="admin-btn" (click)="fetchReport(true)" [disabled]="isRefreshing || isLoading" title="Refresh">
+            <i class="fa-solid fa-arrows-rotate" [class.fa-spin]="isRefreshing"></i>
+            <span>Refresh</span>
+        </button>
+    </header>
+
+    <!-- Refreshing -->
+    <div *ngIf="isRefreshing && !isLoading" class="refresh-state">
+        <i class="fa-solid fa-wave-square"></i>
+        <span>Refreshing report data...</span>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="isLoading" class="report-skeleton">
+        <div class="skeleton-row">
+            <div class="skel-card shimmer" *ngFor="let i of [1,2,3,4]"></div>
+        </div>
+        <div class="skeleton-row">
+            <div class="skel-wide shimmer"></div>
+            <div class="skel-wide shimmer"></div>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage && !isLoading" class="admin-alert admin-alert-error" role="alert">
+        <div>
+            <strong>Error</strong>
+            <p>{{ errorMessage }}</p>
+        </div>
+        <button class="admin-btn" (click)="fetchReport(true)">
+            <i class="fa-solid fa-rotate-right"></i> Retry
+        </button>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+    <div *ngIf="!isLoading && !errorMessage" class="report-content">
+
+        <!-- ===== KPI CARDS ===== -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-users"><i class="fa-solid fa-users"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Total Users</span>
+                    <span class="kpi-value">{{ overview.totalUsers | number }}</span>
+                    <span class="kpi-growth" [class.positive]="growth.userGrowth > 0"
+                        [class.negative]="growth.userGrowth < 0" [class.neutral]="growth.userGrowth === 0">
+                        {{ growthSign(growth.userGrowth) }}{{ growth.userGrowth | number:'1.0-0' }}% this month
+                    </span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-income"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Total Income</span>
+                    <span class="kpi-value">{{ formatCurrency(overview.totalIncome) }}</span>
+                    <span class="kpi-growth" [class.positive]="growth.incomeGrowth > 0"
+                        [class.negative]="growth.incomeGrowth < 0" [class.neutral]="growth.incomeGrowth === 0">
+                        {{ growthSign(growth.incomeGrowth) }}{{ growth.incomeGrowth | number:'1.0-0' }}% vs last month
+                    </span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-expense"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Total Expenses</span>
+                    <span class="kpi-value">{{ formatCurrency(overview.totalExpense) }}</span>
+                    <span class="kpi-growth" [class.positive]="growth.expenseGrowth < 0"
+                        [class.negative]="growth.expenseGrowth > 0" [class.neutral]="growth.expenseGrowth === 0">
+                        {{ growthSign(growth.expenseGrowth) }}{{ growth.expenseGrowth | number:'1.0-0' }}% vs last month
+                    </span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-net"><i class="fa-solid fa-scale-balanced"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-label">Net Profit</span>
+                    <span class="kpi-value" [class.income-color]="overview.netProfit >= 0"
+                        [class.expense-color]="overview.netProfit < 0">
+                        {{ formatCurrency(overview.netProfit) }}
+                    </span>
+                    <span class="kpi-sub">{{ overview.totalTransactions | number }} transactions</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== MOM COMPARISON ===== -->
+        <section class="mom-section">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-calendar-check"></i> Month-over-Month</h3>
+            </div>
+            <div class="mom-grid">
+                <div class="mom-block">
+                    <div class="mom-label">This Month Income</div>
+                    <div class="mom-value income-color">{{ formatCurrency(growth.thisMonthIncome) }}</div>
+                </div>
+                <div class="mom-vs"><i class="fa-solid fa-right-left"></i></div>
+                <div class="mom-block">
+                    <div class="mom-label">Last Month Income</div>
+                    <div class="mom-value">{{ formatCurrency(growth.lastMonthIncome) }}</div>
+                </div>
+                <div class="mom-divider"></div>
+                <div class="mom-block">
+                    <div class="mom-label">This Month Expenses</div>
+                    <div class="mom-value expense-color">{{ formatCurrency(growth.thisMonthExpense) }}</div>
+                </div>
+                <div class="mom-vs"><i class="fa-solid fa-right-left"></i></div>
+                <div class="mom-block">
+                    <div class="mom-label">Last Month Expenses</div>
+                    <div class="mom-value">{{ formatCurrency(growth.lastMonthExpense) }}</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="report-two-col">
+
+            <!-- ===== MONTHLY TREND ===== -->
+            <div class="report-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-chart-bar"></i> Revenue Trend</h3>
+                    <span class="card-badge">6 months</span>
+                </div>
+                <div class="card-body">
+                    <div class="trend-chart" *ngIf="monthlyTrend.length > 0">
+                        <div class="trend-bar-group" *ngFor="let month of monthlyTrend">
+                            <div class="trend-bars">
+                                <div class="trend-bar income-bar" [style.height]="getBarHeight(month.income)"
+                                    [title]="'Income: ' + formatCurrency(month.income)"></div>
+                                <div class="trend-bar expense-bar" [style.height]="getBarHeight(month.expense)"
+                                    [title]="'Expense: ' + formatCurrency(month.expense)"></div>
+                            </div>
+                            <span class="trend-month-label">{{ month.label }}</span>
+                            <span class="trend-net" [class.income-color]="month.net >= 0"
+                                [class.expense-color]="month.net < 0">
+                                {{ month.net >= 0 ? '+' : '-' }}{{ formatCurrency(month.net) }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="trend-legend">
+                        <span class="legend-item"><span class="legend-dot income-dot"></span> Income</span>
+                        <span class="legend-item"><span class="legend-dot expense-dot"></span> Expense</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PER-USER BREAKDOWN ===== -->
+            <div class="report-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-user-gear"></i> Top Users by Volume</h3>
+                    <span class="card-badge">Top 10</span>
+                </div>
+                <div class="card-body">
+                    <div class="user-table" *ngIf="perUserStats.length > 0">
+                        <div class="user-table-header">
+                            <span>User</span>
+                            <span>Income</span>
+                            <span>Expense</span>
+                            <span>Net</span>
+                        </div>
+                        <div class="user-table-row" *ngFor="let u of perUserStats; let i = index">
+                            <div class="user-cell">
+                                <span class="user-rank">{{ i + 1 }}</span>
+                                <div class="user-avatar-sm">{{ getInitials(u.name) }}</div>
+                                <div class="user-name-col">
+                                    <span class="user-name">{{ u.name }}</span>
+                                    <span class="user-txns">{{ u.transactions }} txns</span>
+                                </div>
+                            </div>
+                            <span class="cell-value income-color">{{ formatCurrency(u.income) }}</span>
+                            <span class="cell-value expense-color">{{ formatCurrency(u.expense) }}</span>
+                            <span class="cell-value" [class.income-color]="u.net >= 0"
+                                [class.expense-color]="u.net < 0">
+                                {{ u.net >= 0 ? '+' : '-' }}{{ formatCurrency(u.net) }}
+                            </span>
+                        </div>
+                    </div>
+                    <div *ngIf="perUserStats.length === 0" class="empty-state-small">
+                        <i class="fa-solid fa-user-slash"></i>
+                        <p>No user activity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-two-col">
+
+            <!-- ===== TOP INCOME CATEGORIES ===== -->
+            <div class="report-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-arrow-down"></i> Top Income Sources</h3>
+                </div>
+                <div class="card-body">
+                    <div class="category-list" *ngIf="topIncomeCategories.length > 0">
+                        <div class="cat-row" *ngFor="let cat of topIncomeCategories; let i = index">
+                            <span class="cat-rank" [attr.data-rank]="i + 1">#{{ i + 1 }}</span>
+                            <div class="cat-info">
+                                <div class="cat-name-row">
+                                    <span class="cat-name">{{ cat.category }}</span>
+                                    <span class="cat-amount income-color">{{ formatCurrency(cat.amount) }}</span>
+                                </div>
+                                <div class="cat-bar-bg">
+                                    <div class="cat-bar-fill income-fill"
+                                        [style.width.%]="getCategoryPercent(cat.amount, totalIncomeCategories)"></div>
+                                </div>
+                                <span class="cat-meta">{{ cat.count }} transactions · {{ getCategoryPercent(cat.amount,
+                                    totalIncomeCategories) | number:'1.0-0' }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="topIncomeCategories.length === 0" class="empty-state-small">
+                        <i class="fa-solid fa-inbox"></i>
+                        <p>No income data</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TOP EXPENSE CATEGORIES ===== -->
+            <div class="report-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-arrow-up"></i> Top Expense Categories</h3>
+                </div>
+                <div class="card-body">
+                    <div class="category-list" *ngIf="topExpenseCategories.length > 0">
+                        <div class="cat-row" *ngFor="let cat of topExpenseCategories; let i = index">
+                            <span class="cat-rank" [attr.data-rank]="i + 1">#{{ i + 1 }}</span>
+                            <div class="cat-info">
+                                <div class="cat-name-row">
+                                    <span class="cat-name">{{ cat.category }}</span>
+                                    <span class="cat-amount expense-color">{{ formatCurrency(cat.amount) }}</span>
+                                </div>
+                                <div class="cat-bar-bg">
+                                    <div class="cat-bar-fill expense-fill"
+                                        [style.width.%]="getCategoryPercent(cat.amount, totalExpenseCategories)"></div>
+                                </div>
+                                <span class="cat-meta">{{ cat.count }} transactions · {{ getCategoryPercent(cat.amount,
+                                    totalExpenseCategories) | number:'1.0-0' }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="topExpenseCategories.length === 0" class="empty-state-small">
+                        <i class="fa-solid fa-inbox"></i>
+                        <p>No expense data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RECENT ACTIVITY FEED ===== -->
+        <div class="report-card full-width">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity Feed</h3>
+                <span class="card-badge">All users</span>
+            </div>
+            <div class="card-body">
+                <div class="activity-list" *ngIf="recentTransactions.length > 0">
+                    <div class="activity-row" *ngFor="let txn of recentTransactions">
+                        <div class="activity-icon" [class.act-income]="txn.type === 'income'"
+                            [class.act-expense]="txn.type === 'expense'">
+                            <i class="fa-solid" [class.fa-arrow-down]="txn.type === 'income'"
+                                [class.fa-arrow-up]="txn.type === 'expense'"></i>
+                        </div>
+                        <div class="activity-details">
+                            <span class="activity-title">{{ txn.title }}</span>
+                            <span class="activity-meta">{{ txn.userName }} · {{ txn.category }} · {{
+                                formatDate(txn.date) }}</span>
+                        </div>
+                        <span class="activity-amount" [class.income-color]="txn.type === 'income'"
+                            [class.expense-color]="txn.type === 'expense'">
+                            {{ txn.type === 'income' ? '+' : '-' }}{{ formatCurrency(txn.amount) }}
+                        </span>
+                    </div>
+                </div>
+                <div *ngIf="recentTransactions.length === 0" class="empty-state-small">
+                    <i class="fa-solid fa-receipt"></i>
+                    <p>No transactions yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

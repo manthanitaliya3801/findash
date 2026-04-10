@@ -1,0 +1,130 @@
+<!-- Desktop/Tablet Sidebar -->
+<aside class="sidebar" *ngIf="showSidebar && !isMobileView">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fa-solid fa-wallet"></i>
+            <span class="logo-text">findash</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <!-- User Navigation -->
+        <ng-container *ngIf="!isAdmin">
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-chart-line"></i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a routerLink="/income" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <span class="nav-text">Income</span>
+            </a>
+            <a routerLink="/expenses" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-arrow-trend-down"></i>
+                <span class="nav-text">Expenses</span>
+            </a>
+            <a routerLink="/budget" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-calculator"></i>
+                <span class="nav-text">Budget</span>
+            </a>
+            <a routerLink="/savings" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-piggy-bank"></i>
+                <span class="nav-text">Savings</span>
+            </a>
+            <a routerLink="/reports" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-chart-line"></i>
+                <span class="nav-text">Reports</span>
+            </a>
+            <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-gear"></i>
+                <span class="nav-text">Settings</span>
+            </a>
+        </ng-container>
+
+        <!-- Admin Navigation -->
+        <ng-container *ngIf="isAdmin">
+            <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-chart-line"></i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-users"></i>
+                <span class="nav-text">Users</span>
+            </a>
+            <a routerLink="/admin/transactions" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-receipt"></i>
+                <span class="nav-text">Transactions</span>
+            </a>
+            <a routerLink="/admin/reports" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-file-invoice"></i>
+                <span class="nav-text">Reports</span>
+            </a>
+            <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">
+                <i class="fa-solid fa-gear"></i>
+                <span class="nav-text">Settings</span>
+            </a>
+        </ng-container>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button (click)="onLogout()" class="nav-item logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="nav-text">Logout</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Mobile Bottom Navigation (Instagram Style) -->
+<nav class="bottom-nav" *ngIf="isMobileView && showSidebar">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-house"></i>
+    </a>
+    <a routerLink="/income" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-arrow-trend-up"></i>
+    </a>
+    <div class="nav-item center-fab">
+        <a routerLink="/dashboard" (click)="onOpenQuickAdd()">
+            <div class="fab-button">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+        </a>
+    </div>
+    <a routerLink="/expenses" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-arrow-trend-down"></i>
+    </a>
+    <button (click)="toggleMobileMenu()" class="nav-item btn-reset" [class.active]="isMobileMenuOpen">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+</nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" *ngIf="isMobileMenuOpen" (click)="closeMobileMenu()">
+    <div class="mobile-menu-content" (click)="$event.stopPropagation()">
+        <div class="mobile-menu-header">
+            <h3>Menu</h3>
+            <button (click)="closeMobileMenu()" class="btn-icon"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="mobile-menu-grid">
+            <a routerLink="/budget" (click)="closeMobileMenu()" class="mobile-menu-item">
+                <div class="icon-box bg-purple-100 text-purple-600"><i class="fa-solid fa-calculator"></i></div>
+                <span>Budget</span>
+            </a>
+            <a routerLink="/savings" (click)="closeMobileMenu()" class="mobile-menu-item">
+                <div class="icon-box bg-emerald-100 text-emerald-600"><i class="fa-solid fa-piggy-bank"></i></div>
+                <span>Savings</span>
+            </a>
+            <a routerLink="/reports" (click)="closeMobileMenu()" class="mobile-menu-item">
+                <div class="icon-box bg-blue-100 text-blue-600"><i class="fa-solid fa-chart-line"></i></div>
+                <span>Reports</span>
+            </a>
+            <a routerLink="/settings" (click)="closeMobileMenu()" class="mobile-menu-item">
+                <div class="icon-box bg-slate-100 text-slate-600"><i class="fa-solid fa-gear"></i></div>
+                <span>Settings</span>
+            </a>
+        </div>
+        <div class="mobile-menu-footer">
+            <button (click)="onLogout()" class="btn btn-danger w-full">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+            </button>
+        </div>
+    </div>
+</div>

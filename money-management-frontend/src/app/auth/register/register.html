@@ -1,0 +1,141 @@
+<div class="app-container">
+
+    <!-- Left Side: Brand Panel -->
+    <div class="left-side">
+        <div class="brand-panel">
+            <!-- Logo -->
+            <div class="brand-logo">
+                <div class="brand-logo-icon">💰</div>
+                <span class="brand-name">findash</span>
+            </div>
+
+            <h2 class="brand-tagline">Take control of<br><em>every rupee.</em></h2>
+            <p class="brand-desc">Join thousands of users who have transformed their financial habits with Findash.</p>
+
+            <!-- Feature highlights -->
+            <div class="brand-features">
+                <div class="feature-pill">
+                    <div class="feature-pill-icon pill-blue">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <span>Set up in under 2 minutes</span>
+                </div>
+                <div class="feature-pill">
+                    <div class="feature-pill-icon pill-teal">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <span>Smart budget planner</span>
+                </div>
+                <div class="feature-pill">
+                    <div class="feature-pill-icon pill-indigo">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <span>100% private & secure</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Form -->
+    <div class="right-side">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <h2>Create account ✨</h2>
+                <p>Start your financial journey today</p>
+            </div>
+
+            <form (ngSubmit)="onRegister()" #registerForm="ngForm" method="post" action="javascript:void(0)">
+                <!-- Name Input -->
+                <div class="form-group">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input id="name" type="text" placeholder="Your full name" [(ngModel)]="name" name="name"
+                        (blur)="onNameBlur()" [class.error]="nameError" class="form-input" required
+                        autocomplete="name" />
+                    <span class="form-error" *ngIf="nameError">{{ nameError }}</span>
+                </div>
+
+                <!-- Email Input -->
+                <div class="form-group">
+                    <label for="email" class="form-label">Email address</label>
+                    <input id="email" type="email" placeholder="you@example.com" [(ngModel)]="email" name="email"
+                        (blur)="onEmailBlur()" [class.error]="emailError" class="form-input" required
+                        autocomplete="email" />
+                    <span class="form-error" *ngIf="emailError">{{ emailError }}</span>
+                </div>
+
+                <!-- Password Input -->
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-wrapper">
+                        <input id="password" [type]="showPassword ? 'text' : 'password'"
+                            placeholder="Create a strong password" [(ngModel)]="password" name="password"
+                            (input)="onPasswordInput()" (blur)="onPasswordBlur()" [class.error]="passwordError"
+                            class="form-input" required autocomplete="new-password" />
+                        <button type="button" class="password-toggle" (click)="togglePasswordVisibility()"
+                            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                            <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+                        </button>
+                    </div>
+
+                    <!-- Password Strength Indicator -->
+                    <div class="password-strength" *ngIf="password">
+                        <div class="strength-bar">
+                            <div class="strength-fill" [class.weak]="passwordStrength === 'weak'"
+                                [class.medium]="passwordStrength === 'medium'"
+                                [class.strong]="passwordStrength === 'strong'"></div>
+                        </div>
+                        <span class="strength-text" [class]="passwordStrength">
+                            {{ passwordStrength === 'weak' ? 'Weak' : passwordStrength === 'medium' ? 'Medium' :
+                            'Strong' }}
+                        </span>
+                    </div>
+
+                    <span class="form-error" *ngIf="passwordError">{{ passwordError }}</span>
+                </div>
+
+                <!-- Confirm Password Input -->
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <div class="password-wrapper">
+                        <input id="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
+                            placeholder="Re-enter your password" [(ngModel)]="confirmPassword" name="confirmPassword"
+                            (blur)="onConfirmPasswordBlur()" [class.error]="confirmPasswordError" class="form-input"
+                            required autocomplete="new-password" />
+                        <button type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()"
+                            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
+                            <i class="fa-solid" [class.fa-eye]="!showConfirmPassword"
+                                [class.fa-eye-slash]="showConfirmPassword"></i>
+                        </button>
+                    </div>
+                    <span class="form-error" *ngIf="confirmPasswordError">{{ confirmPasswordError }}</span>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms" [(ngModel)]="acceptedTerms" name="acceptedTerms" />
+                    <label for="terms">
+                        I agree to the <a href="#" target="_blank">Terms &amp; Conditions</a> and <a href="#"
+                            target="_blank">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="auth-button" [disabled]="isLoading">
+                    <span *ngIf="!isLoading">
+                        <i class="fa-solid fa-user-plus" style="margin-right:0.4rem;"></i> Create Account
+                    </span>
+                    <span *ngIf="isLoading" class="loading-spinner">
+                        <span class="spinner"></span>
+                        Creating account...
+                    </span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account?
+                <a routerLink="/login" class="auth-link">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+</div>

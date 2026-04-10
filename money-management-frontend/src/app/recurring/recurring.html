@@ -1,0 +1,107 @@
+<div class="recurring-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="burger-btn" (click)="openMenu()"><i class="fa-solid fa-bars"></i></button>
+      <div>
+        <h1 class="page-title">Recurring Transactions</h1>
+        <p class="page-subtitle">Your automatic income and expenses</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="sum-card income">
+      <div class="sum-icon"><i class="fa-solid fa-rotate"></i></div>
+      <div class="sum-info">
+        <p class="sum-label">Monthly Recurring Income</p>
+        <p class="sum-value">{{ totalMonthlyIncome | appCurrency }}</p>
+      </div>
+    </div>
+    <div class="sum-card expense">
+      <div class="sum-icon"><i class="fa-solid fa-rotate"></i></div>
+      <div class="sum-info">
+        <p class="sum-label">Monthly Recurring Expense</p>
+        <p class="sum-value">{{ totalMonthlyExpense | appCurrency }}</p>
+      </div>
+    </div>
+    <div class="sum-card net">
+      <div class="sum-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+      <div class="sum-info">
+        <p class="sum-label">Monthly Net Recurring</p>
+        <p class="sum-value" [class.positive]="totalMonthlyIncome - totalMonthlyExpense >= 0">
+          {{ (totalMonthlyIncome - totalMonthlyExpense) | appCurrency }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    <button class="tab-btn" [class.active]="activeFilter === 'all'" (click)="activeFilter = 'all'">
+      All <span class="tab-count">{{ recurring.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeFilter === 'income'" (click)="activeFilter = 'income'">
+      Income <span class="tab-count income">{{ incomeCount }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeFilter === 'expense'" (click)="activeFilter = 'expense'">
+      Expense <span class="tab-count expense">{{ expenseCount }}</span>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fa-solid fa-spinner fa-spin"></i>
+    <p>Loading recurring transactions...</p>
+  </div>
+
+  <!-- Recurring List -->
+  <div class="recurring-list" *ngIf="!isLoading">
+    <div class="recurring-card"
+      *ngFor="let tx of filtered"
+      [class.income-card]="tx.entryType === 'income'"
+      [class.expense-card]="tx.entryType === 'expense'"
+    >
+      <div class="rc-icon">
+        <i [class]="tx.entryType === 'income' ? 'fa-solid fa-arrow-trend-up' : 'fa-solid fa-arrow-trend-down'"></i>
+      </div>
+
+      <div class="rc-main">
+        <div class="rc-top">
+          <h3 class="rc-title">{{ tx.title }}</h3>
+          <span class="interval-badge" [class]="getIntervalBadgeClass(tx.recurringInterval)">
+            {{ getIntervalLabel(tx.recurringInterval) }}
+          </span>
+        </div>
+        <div class="rc-meta">
+          <span class="rc-category"><i class="fa-solid fa-tag"></i> {{ tx.category }}</span>
+          <span class="rc-due" [class]="getDueClass(tx)">
+            <i class="fa-regular fa-clock"></i> {{ getNextDueLabel(tx) }}
+          </span>
+          <span *ngIf="tx.description" class="rc-desc">{{ tx.description }}</span>
+        </div>
+        <div class="rc-tags" *ngIf="tx.tags?.length">
+          <span class="tag-chip" *ngFor="let t of tx.tags">#{{ t }}</span>
+        </div>
+      </div>
+
+      <div class="rc-amount">
+        <span [class.income-amt]="tx.entryType === 'income'" [class.expense-amt]="tx.entryType === 'expense'">
+          {{ tx.entryType === 'income' ? '+' : '-' }}{{ currencySymbol }}{{ tx.amount | number:'1.2-2' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="fa-solid fa-rotate empty-icon"></i>
+      <h3>No Recurring Transactions</h3>
+      <p>Mark income or expense entries as recurring when adding them to see them here.</p>
+      <div class="empty-actions">
+        <a routerLink="/income" class="btn-add income">+ Add Income</a>
+        <a routerLink="/expenses" class="btn-add expense">+ Add Expense</a>
+      </div>
+    </div>
+  </div>
+</div>

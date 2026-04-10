@@ -1,0 +1,259 @@
+<div class="page-content">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h2 class="mobile-app-title">Savings</h2>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header animate-fade-in">
+        <div class="page-header-content">
+            <h1 class="page-header-title"><i class="fa-solid fa-piggy-bank mr-2 text-primary"></i> Savings Goals</h1>
+            <p class="page-header-subtitle">Track your progress towards financial milestones.</p>
+        </div>
+
+        <div class="page-header-actions">
+            <button (click)="toggleForm()" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Add Goal
+            </button>
+        </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-8 animate-fade-in" style="animation-delay: 0.1s">
+        <!-- Total Savings Card -->
+        <div class="col-12 col-lg-4">
+            <div class="card-premium card-savings balance-card overflow-hidden"
+                style="background: linear-gradient(145deg, #ec4899 0%, #db2777 100%);">
+                <div class="absolute -right-10 -top-10 opacity-20">
+                    <i class="fa-solid fa-piggy-bank text-9xl text-white"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex-between mb-4">
+                        <span class="text-white/90 font-medium text-sm">Total Saved</span>
+                        <div class="btn-icon bg-white/20 text-white backdrop-blur-sm">
+                            <i class="fa-solid fa-vault"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-2">{{ totalSavings | appCurrency }}</h2>
+                    <div class="flex items-center gap-2 text-white/80 text-sm">
+                        <span class="bg-white/20 px-2 py-0.5 rounded text-white font-medium text-xs">Active</span>
+                        <span>Across {{ savingsGoals.length }} goals</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Month Balance Card -->
+        <div class="col-12 col-lg-4">
+            <div class="card-premium balance-card overflow-hidden"
+                style="background: linear-gradient(145deg, #6366f1 0%, #4f46e5 100%);">
+                <div class="absolute -right-10 -top-10 opacity-20">
+                    <i class="fa-solid fa-wallet text-9xl text-white"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex-between mb-4">
+                        <span class="text-white/90 font-medium text-sm">{{ currentMonthLabel }} Balance</span>
+                        <div class="btn-icon bg-white/20 text-white backdrop-blur-sm">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-2">{{ currentMonthBalance | appCurrency }}</h2>
+                    <div class="flex items-center gap-2 text-white/80 text-sm">
+                        <span class="bg-white/20 px-2 py-0.5 rounded text-white font-medium text-xs">This Month</span>
+                        <span>Available to save</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goal Count -->
+        <div class="col-12 col-lg-4">
+            <div class="card-premium flex-col justify-center">
+                <div class="flex-between mb-2">
+                    <span class="text-muted font-medium">Active Goals</span>
+                    <div class="btn-icon bg-blue-50 text-blue-500">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold text-main">{{ savingsGoals.length }}</h2>
+                <p class="text-xs text-muted mt-1">Targets set</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goals Grid -->
+    <div class="grid-3 gap-4 animate-fade-in" style="animation-delay: 0.1s">
+        <div *ngFor="let goal of savingsGoals" class="card-premium savings-goal-card flex-col justify-between group"
+            [class.completed]="calculatePercentage(goal.currentAmount, goal.targetAmount) >= 100">
+            <div>
+                <div class="flex-between mb-3">
+                    <div class="icon-wrapper">
+                        <i [class]="getIconClass(goal.icon)"></i>
+                    </div>
+                    <div class="action-buttons flex gap-2">
+                        <button (click)="openDepositForm(goal)" class="btn-icon text-success hover:bg-green-50"
+                            title="Add Funds">
+                            <i class="fa-solid fa-plus-circle"></i>
+                        </button>
+                        <button (click)="openEditForm(goal)" class="btn-icon text-primary hover:bg-blue-50"
+                            title="Edit">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                        <button (click)="deleteGoal(goal._id)" class="btn-icon text-danger hover:bg-red-50"
+                            title="Delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <h3 class="goal-title">{{ goal.title }}</h3>
+                <p class="goal-target">Target: {{ goal.targetAmount | appCurrency }}</p>
+            </div>
+
+            <div class="progress-section mt-4">
+                <div class="progress-info">
+                    <span>{{ goal.currentAmount | appCurrency }}</span>
+                    <span>{{ calculatePercentage(goal.currentAmount, goal.targetAmount) | number:'1.0-0' }}%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill"
+                        [style.width.%]="calculatePercentage(goal.currentAmount, goal.targetAmount)">
+                    </div>
+                </div>
+                <p *ngIf="calculatePercentage(goal.currentAmount, goal.targetAmount) >= 100"
+                    class="text-xs text-success font-semibold mt-2">
+                    <i class="fa-solid fa-circle-check"></i> Goal Achieved! 🎉
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="savingsGoals.length === 0" class="text-center py-5 text-muted animate-fade-in">
+        <div class="mb-3 text-4xl text-gray-300"><i class="fa-solid fa-piggy-bank"></i></div>
+        <p>No savings goals yet. Start saving today!</p>
+    </div>
+
+</div>
+
+<!-- Modal / Form Overlay -->
+<div class="modal-backdrop" *ngIf="showForm" (click)="toggleForm()">
+    <div class="modal-content card-premium" (click)="$event.stopPropagation()">
+        <div class="flex-between mb-4">
+            <h3 class="text-xl font-bold">{{ editMode ? 'Edit Goal' : 'New Savings Goal' }}</h3>
+            <button (click)="toggleForm()" class="btn-icon text-muted hover:text-danger"><i
+                    class="fa-solid fa-times"></i></button>
+        </div>
+
+        <form (ngSubmit)="goalForm.form.valid && saveGoal()" #goalForm="ngForm">
+            <!-- Category Quick-Select -->
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-2">
+                    <i class="fa-solid fa-tag mr-1"></i>Quick Select Category
+                </label>
+                <div class="category-chips-row">
+                    <button type="button" *ngFor="let cat of goalCategories"
+                        class="category-chip"
+                        [class.active-chip]="newGoal.title === cat.label"
+                        (click)="selectCategoryExample(cat)">
+                        <i [class]="cat.icon"></i>
+                        <span>{{ cat.label }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <label class="block text-sm font-medium text-muted mb-1">Goal Icon</label>
+            <div class="grid grid-cols-4 gap-2 mb-2 p-2 bg-gray-50 rounded-lg">
+                <div *ngFor="let icon of availableIcons" (click)="selectIcon(icon)"
+                    class="icon-option p-2 text-center rounded cursor-pointer transition-all hover:bg-white hover:shadow-sm"
+                    [class.active-icon]="newGoal.icon === icon" [class.bg-white]="newGoal.icon === icon"
+                    [class.shadow]="newGoal.icon === icon" [class.text-primary]="newGoal.icon === icon">
+                    <i [class]="icon" class="text-xl"></i>
+                </div>
+            </div>
+
+
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-1">Goal Title</label>
+                <input type="text" [(ngModel)]="newGoal.title" name="title" class="input-premium"
+                    placeholder="e.g. New Car, Holiday Fund..." required #goalTitleInput="ngModel"
+                    [class.border-red-500]="goalTitleInput.invalid && goalTitleInput.touched">
+                <span *ngIf="goalTitleInput.invalid && goalTitleInput.touched"
+                    class="text-xs text-danger mt-1 block">Title is
+                    required</span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="block text-sm font-medium text-muted mb-1">Target Amount</label>
+                <input type="number" [(ngModel)]="newGoal.targetAmount" name="targetAmount" class="input-premium"
+                    placeholder="0.00" required min="0.01" #targetInput="ngModel"
+                    [class.border-red-500]="targetInput.invalid && targetInput.touched">
+                <span *ngIf="targetInput.invalid && targetInput.touched" class="text-xs text-danger mt-1 block">
+                    Target amount must be greater than 0
+                </span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="block text-sm font-medium text-muted mb-1">Current Saved</label>
+                <input type="number" [(ngModel)]="newGoal.currentAmount" name="currentAmount" class="input-premium"
+                    placeholder="0.00" min="0">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full" [disabled]="goalForm.invalid || !newGoal.targetAmount">
+                {{ editMode ? 'Update Goal' : 'Create Goal' }}
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="modal-backdrop" *ngIf="showDepositForm" (click)="toggleDepositForm()">
+    <div class="modal-content card-premium" (click)="$event.stopPropagation()">
+        <div class="flex-between mb-4">
+            <h3 class="text-xl font-bold">Add Funds</h3>
+            <button (click)="toggleDepositForm()" class="btn-icon text-muted hover:text-danger"><i
+                    class="fa-solid fa-times"></i></button>
+        </div>
+
+        <!-- Month Balance Info Banner -->
+        <div class="month-balance-banner mb-4">
+            <div class="month-balance-icon">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="month-balance-info">
+                <span class="month-balance-label">{{ currentMonthLabel }} Available Balance</span>
+                <span class="month-balance-amount" [class.low-balance]="currentMonthBalance <= 0">
+                    {{ currentMonthBalance | appCurrency }}
+                </span>
+            </div>
+        </div>
+
+        <div *ngIf="currentMonthBalance <= 0" class="balance-warning mb-3">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            You have no available balance this month to deposit.
+        </div>
+
+        <form (ngSubmit)="depositForm.form.valid && submitDeposit()" #depositForm="ngForm">
+            <div class="form-group mb-4">
+                <label class="block text-sm font-medium text-muted mb-1">
+                    Amount to Add
+                    <span class="text-xs text-muted ml-1">(max: {{ maxDepositAllowed | appCurrency }})</span>
+                </label>
+                <input type="number" [(ngModel)]="depositAmount" name="depositAmount" class="input-premium"
+                    placeholder="0.00" required min="0.01" [max]="maxDepositAllowed" autoFocus #depositInput="ngModel"
+                    [class.border-red-500]="depositInput.invalid && depositInput.touched">
+                <span *ngIf="depositInput.invalid && depositInput.touched" class="text-xs text-danger mt-1 block">
+                    Amount must be between 0.01 and {{ maxDepositAllowed | appCurrency }}
+                </span>
+                <span *ngIf="depositAmount > currentMonthBalance && depositAmount > 0"
+                    class="text-xs text-danger mt-1 block">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    Amount exceeds your current month's balance of {{ currentMonthBalance | appCurrency }}
+                </span>
+            </div>
+
+            <button type="submit" class="btn btn-success w-full"
+                [disabled]="depositForm.invalid || !depositAmount || depositAmount > currentMonthBalance || currentMonthBalance <= 0">
+                <i class="fa-solid fa-check mr-2"></i> Confirm Deposit
+            </button>
+        </form>
+    </div>
+</div>

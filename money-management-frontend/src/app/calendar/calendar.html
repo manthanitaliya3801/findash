@@ -1,0 +1,122 @@
+<div class="calendar-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="burger-btn" (click)="openMenu()" id="cal-menu-btn">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div>
+        <h1 class="page-title">Transaction Calendar</h1>
+        <p class="page-subtitle">Visualize your financial activity day by day</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="month-summary">
+        <span class="sum-income"><i class="fa-solid fa-arrow-up"></i> {{ monthlyIncome | appCurrency }}</span>
+        <span class="sum-expense"><i class="fa-solid fa-arrow-down"></i> {{ monthlyExpense | appCurrency }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-layout" [class.panel-open]="isPanelOpen">
+    <!-- Calendar Card -->
+    <div class="calendar-card">
+      <!-- Month Navigator -->
+      <div class="cal-nav">
+        <button class="nav-btn" (click)="prevMonth()" id="cal-prev-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        <h2 class="month-label">{{ monthLabel }}</h2>
+        <button class="nav-btn" (click)="nextMonth()" id="cal-next-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="today-btn" (click)="goToToday()" id="cal-today-btn">Today</button>
+      </div>
+
+      <!-- Weekday Headers -->
+      <div class="weekday-row">
+        <div class="weekday-cell" *ngFor="let d of weekDays">{{ d }}</div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="days-grid">
+        <div
+          class="day-cell"
+          *ngFor="let day of calendarDays; let i = index"
+          [class.empty-cell]="!day.isCurrentMonth"
+          [class.today]="day.isToday"
+          [class.selected]="selectedDay === day && isPanelOpen"
+          [class.has-data]="day.transactions.length > 0"
+          (click)="selectDay(day)"
+          [id]="'day-cell-' + i"
+        >
+          <span class="day-number" *ngIf="day.dayNum">{{ day.dayNum }}</span>
+          <div class="day-dots" *ngIf="day.transactions.length > 0">
+            <span class="dot income-dot" *ngIf="day.incomeTotal > 0"></span>
+            <span class="dot expense-dot" *ngIf="day.expenseTotal > 0"></span>
+          </div>
+          <div class="day-amounts" *ngIf="day.transactions.length > 0">
+            <span class="inc-amt" *ngIf="day.incomeTotal > 0">+{{ currencySymbol }}{{ day.incomeTotal | number:'1.0-0' }}</span>
+            <span class="exp-amt" *ngIf="day.expenseTotal > 0">-{{ currencySymbol }}{{ day.expenseTotal | number:'1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="cal-legend">
+        <span><span class="dot income-dot"></span> Income</span>
+        <span><span class="dot expense-dot"></span> Expense</span>
+        <span class="today-legend"><span class="today-dot"></span> Today</span>
+      </div>
+    </div>
+
+    <!-- Side Panel (Day Details) -->
+    <div class="day-panel" *ngIf="isPanelOpen && selectedDay" [@slideIn]>
+      <div class="panel-header">
+        <div>
+          <h3>{{ selectedDay.date | date:'MMMM d, yyyy' }}</h3>
+          <p class="panel-subtitle">{{ selectedDay.transactions.length }} transaction(s)</p>
+        </div>
+        <button class="close-panel-btn" (click)="closePanel()" id="cal-close-panel">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="panel-summary">
+        <div class="ps-card income">
+          <p class="ps-label">Income</p>
+          <p class="ps-value">+{{ currencySymbol }}{{ selectedDay.incomeTotal | number:'1.2-2' }}</p>
+        </div>
+        <div class="ps-card expense">
+          <p class="ps-label">Expense</p>
+          <p class="ps-value">-{{ currencySymbol }}{{ selectedDay.expenseTotal | number:'1.2-2' }}</p>
+        </div>
+        <div class="ps-card net" [class.positive]="selectedDay.incomeTotal - selectedDay.expenseTotal >= 0">
+          <p class="ps-label">Net</p>
+          <p class="ps-value">{{ currencySymbol }}{{ (selectedDay.incomeTotal - selectedDay.expenseTotal) | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <div class="panel-transactions">
+        <div
+          class="panel-tx"
+          *ngFor="let tx of selectedDay.transactions"
+          [class.tx-income]="tx.entryType === 'income'"
+          [class.tx-expense]="tx.entryType === 'expense'"
+        >
+          <div class="tx-icon">
+            <i [class]="tx.entryType === 'income' ? 'fa-solid fa-arrow-trend-up' : 'fa-solid fa-arrow-trend-down'"></i>
+          </div>
+          <div class="tx-info">
+            <p class="tx-title">{{ tx.title }}</p>
+            <p class="tx-meta">{{ tx.category }}<span *ngIf="tx.tags?.length"> · {{ tx.tags[0] }}</span></p>
+          </div>
+          <span class="tx-amount">
+            {{ tx.entryType === 'income' ? '+' : '-' }}{{ currencySymbol }}{{ tx.amount | number:'1.2-2' }}
+          </span>
+        </div>
+
+        <div class="no-tx" *ngIf="selectedDay.transactions.length === 0">
+          <i class="fa-regular fa-calendar-xmark"></i>
+          <p>No transactions on this day</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
